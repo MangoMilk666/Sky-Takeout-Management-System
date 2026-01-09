@@ -1,0 +1,25 @@
+# idea
+**/target/
+.idea
+*.iml
+*.class
+*Test.java
+**/test/
+out/
+# Macos
+.DS_Store
+._*
+Thumbs.db
+
+
+# dependencies
+build/
+dist/
+node_modules/
+*.log
+*.jar
+*.war
+*.ear
+.env
+
+
