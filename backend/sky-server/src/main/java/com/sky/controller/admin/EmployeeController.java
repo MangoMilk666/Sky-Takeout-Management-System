@@ -25,6 +25,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/employee")
+// 原来是 @RequestMapping("/admin/employee"),修改过
 @Slf4j
 @Api(tags = "员工相关接口")
 public class EmployeeController {

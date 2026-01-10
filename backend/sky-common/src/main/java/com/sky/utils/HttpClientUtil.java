@@ -21,10 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Http工具类
+ * Http工具类，用来主动调用其他系统 / 第三方接口 / 微服务接口
+ * 统一封装 GET / POST 请求的发送逻辑
  */
 public class HttpClientUtil {
-
+    // 超时配置
     static final  int TIMEOUT_MSEC = 5 * 1000;
 
     /**
