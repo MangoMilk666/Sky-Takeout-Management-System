@@ -4,10 +4,13 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+/**
+ * 通过配置属性类的方式，把SpingBoot配置文件中的配置项封装为java对象
+ */
 @Component
 @ConfigurationProperties(prefix = "sky.jwt")
 @Data
-public class JwtProperties {
+public class JwtProperties { // 配置属性类
 
     /**
      * 管理端员工生成jwt令牌相关配置
