@@ -1,6 +1,7 @@
 package com.sky.controller.admin;
 
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
@@ -24,8 +25,7 @@ import java.util.Map;
  * 员工管理
  */
 @RestController
-@RequestMapping("/employee")
-// 原来是 @RequestMapping("/admin/employee"),修改过
+@RequestMapping("/admin/employee")
 @Slf4j
 @Api(tags = "员工相关接口")
 public class EmployeeController {
@@ -75,6 +75,17 @@ public class EmployeeController {
     @PostMapping("/logout")
     @ApiOperation("员工登出")
     public Result<String> logout() {
+        return Result.success();
+    }
+
+    /**
+     * 新增员工
+     */
+    @PostMapping
+    @ApiOperation("添加员工")
+    public Result<String> addEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("待添加员工: {}", employeeDTO);
+        employeeService.addEmployee(employeeDTO);
         return Result.success();
     }
 
