@@ -32,4 +32,14 @@ public interface EmployeeService {
      * 禁用/启用员工账号
      */
     void updateStatus(Integer status, Long id);
+
+    /**
+     * 根据id查询员工
+     */
+    Employee getById(Long id);
+
+    /**
+     * 编辑(修改)员工信息
+     */
+    void updateEmployee(EmployeeDTO employeeDTO);
 }
