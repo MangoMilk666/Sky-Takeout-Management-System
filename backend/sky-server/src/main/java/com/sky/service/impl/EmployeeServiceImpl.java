@@ -106,4 +106,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(p.getTotal(), p.getResult());
     }
 
+    /**
+     * 禁用/启用员工账号
+     */
+    @Override
+    public void updateStatus(Integer status, Long id) {
+        Employee employee = Employee.builder()
+                            .id(id)
+                            .status(status)
+                            .build();
+        // 更新修改时间和修改员工id
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        // 调用一个统一的dao层方法,而不要单独一个
+        employeeMapper.update(employee);
+    }
+
 }
