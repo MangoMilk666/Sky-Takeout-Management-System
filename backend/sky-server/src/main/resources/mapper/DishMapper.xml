@@ -10,6 +10,9 @@
                             #{description}, #{status}, #{createTime},#{updateTime},
                             #{createUser}, #{updateUser})
     </insert>
+    <delete id="deleteById">
+        delete from dish where id = #{id}
+    </delete>
     <select id="pageQuery" resultType="com.sky.vo.DishVO">
         select d.*, c.name as categoryName from dish d left join category c
         on d.category_id = c.id

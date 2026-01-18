@@ -19,7 +19,7 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public String upload(MultipartFile file) {
         String uploadPath =  "/Users/henrysang/Documents/Sky-Takeout/data/img_data/";
-        String accessUrl =  "http://localhost:8080/admin/commoncommon/upload/";
+        String accessUrl =  "http://localhost:8080/admin/common/upload/";
 
         if (file==null || file.isEmpty()){
             throw new RuntimeException("待上传文件为空");
