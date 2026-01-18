@@ -11,6 +11,14 @@
                             #{createUser}, #{updateUser})
     </insert>
 
+    <insert id="saveSetmealDishes">
+        <!--批量插入套餐包含的菜品-->
+        insert into setmeal_dish(setmeal_id, dish_id, name, price, copies) VALUES
+        <foreach collection="setmealDishes" item="setmealDish" separator="," open="(" close=")">
+            #{setmealDish.setmealId}, #{setmealDish.dishId}, #{setmealDish.name}, #{setmealDish.price}, #{setmealDish.copies}
+        </foreach>
+    </insert>
+
     <update id="update">
         update dish
         <set>

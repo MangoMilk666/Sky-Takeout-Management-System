@@ -17,13 +17,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/dish")
 public class DishController {
+    // 菜品相关接口：DONE
     @Autowired
     private DishService dishService;
 
     /**
      * 新增菜品
      */
-
     @PostMapping
     public Result<String> addDish(@RequestBody DishDTO dishDTO) {
         log.info("新增菜品: {}", dishDTO);

@@ -1,5 +1,12 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
+import com.sky.annotation.AutoFill;
+import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Setmeal;
+import com.sky.enumeration.OperationType;
+import com.sky.vo.SetmealVO;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -22,4 +29,15 @@ public interface SetmealMapper {
      */
     @Select("select sd.setmeal_id from setmeal_dish sd where sd.dish_id = #{id}")
     List<Long> getIdsByDishId(Long id);
+
+    /**
+     * 新增套餐
+     */
+    @AutoFill(value = OperationType.INSERT)
+    void saveSetmeal(Setmeal setmeal);
+
+    /**
+     * 套餐分页查询
+     */
+    Page<SetmealVO> getPage(SetmealPageQueryDTO setmealPageQueryDTO);
 }
