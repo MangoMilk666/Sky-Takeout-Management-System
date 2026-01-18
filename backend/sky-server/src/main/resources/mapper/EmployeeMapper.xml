@@ -37,7 +37,7 @@
         where id = #{id}
     </update>
     
-    <select id="list" resultType="com.sky.entity.Employee">
+    <select id="pageQuery" resultType="com.sky.entity.Employee">
         <!--分页查询员工-->
         select * from employee
         <where>

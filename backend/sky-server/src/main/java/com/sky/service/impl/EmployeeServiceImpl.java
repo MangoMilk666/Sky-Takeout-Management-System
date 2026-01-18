@@ -2,11 +2,9 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
-import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -21,9 +19,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -99,10 +94,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public PageResult getPage(EmployeePageQueryDTO employeePageQueryDTO) {
         // 分页参数
+        // 本质是基于mybatis拦截SQL并且加上'limit offset, pageSize', 但只对第一条SQL生效
         PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
-        // 查询
-        List<Employee> list = employeeMapper.list(employeePageQueryDTO);
-        Page<Employee> p = (Page<Employee>) list;
+        // 查询, Page类继承了ArrayList，所以可以直接作为返回类型
+        Page<Employee> p = employeeMapper.pageQuery(employeePageQueryDTO);
         return new PageResult(p.getTotal(), p.getResult());
     }
 
