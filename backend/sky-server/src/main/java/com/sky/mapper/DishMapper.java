@@ -45,7 +45,7 @@ public interface DishMapper {
      * @return
      */
     @Select("select d.*, c.name as categoryName from dish d left join category c on d.category_id = c.id where d.id = #{id}")
-    DishVO getById(Long id);
+    Dish getById(Long id);
 
     /**
      * 修改菜品信息
