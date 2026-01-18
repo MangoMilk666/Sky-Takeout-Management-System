@@ -18,7 +18,7 @@ public class CommonController {
 
     @Autowired
     private CommonService commonService;
-    // TODO: 构建/完善文件上传接口
+    // TODO: 构建/完善文件上传接口(暂时在本地，之后存在OSS)
     /**
      * 文件上传接口
      */

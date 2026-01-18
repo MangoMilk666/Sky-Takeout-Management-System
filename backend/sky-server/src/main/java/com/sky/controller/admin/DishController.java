@@ -1,6 +1,8 @@
 package com.sky.controller.admin;
 
 import com.sky.dto.DishDTO;
+import com.sky.dto.DishPageQueryDTO;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +19,21 @@ public class DishController {
     /**
      * 新增菜品
      */
-    //TODO: 完善文件上传接口后联调测试
+
     @PostMapping
     public Result<String> addDish(@RequestBody DishDTO dishDTO) {
         log.info("新增菜品: {}", dishDTO);
         dishService.saveWithFlavors(dishDTO);
         return Result.success();
+    }
+
+    /**
+     * 菜品分页查询
+     */
+    @GetMapping("/page")
+    public Result<PageResult> getPage(DishPageQueryDTO dishPageQueryDTO) {
+        log.info("菜品分页查询: {}", dishPageQueryDTO);
+        PageResult pageResult = dishService.pageQuery(dishPageQueryDTO);
+        return Result.success(pageResult);
     }
 }

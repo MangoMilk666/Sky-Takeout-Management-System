@@ -10,4 +10,19 @@
                             #{description}, #{status}, #{createTime},#{updateTime},
                             #{createUser}, #{updateUser})
     </insert>
+    <select id="pageQuery" resultType="com.sky.entity.Dish">
+        select * from dish
+        <where>
+            <if test="name!=null and name!=''">
+                name like concat('%', #{name}, '%')
+            </if>
+            <if test="categoryId!=null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by update_time desc
+    </select>
 </mapper>
