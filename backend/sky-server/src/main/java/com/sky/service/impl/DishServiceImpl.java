@@ -11,6 +11,7 @@ import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
+import com.sky.vo.DishVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,7 @@ public class DishServiceImpl implements DishService {
         // 分页参数
         PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
         // 分页查询，返回Page<Dish>对象
-        Page<Dish> dishPage = dishMapper.pageQuery(dishPageQueryDTO);
+        Page<DishVO> dishPage = dishMapper.pageQuery(dishPageQueryDTO);
         return new PageResult(dishPage.getTotal(), dishPage.getResult());
     }
 }
