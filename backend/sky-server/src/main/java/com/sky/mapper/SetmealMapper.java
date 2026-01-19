@@ -40,4 +40,24 @@ public interface SetmealMapper {
      * 套餐分页查询
      */
     Page<SetmealVO> getPage(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    /**
+     * 根据id查询套餐
+     * @param setmealId
+     * @return
+     */
+    @Select("select id, category_id, name, price, status, description, image, create_time, update_time, create_user, update_user from setmeal where id = #{setmealId}")
+    Setmeal getById(Long setmealId);
+
+    /**
+     * 批量删除套餐
+     * @param ids
+     */
+    void deleteBatch(List<Long> ids);
+
+    /**
+     * 修改套餐信息
+     */
+    @AutoFill(value = OperationType.UPDATE)
+    void updateSetmeal(Setmeal setmeal);
 }
