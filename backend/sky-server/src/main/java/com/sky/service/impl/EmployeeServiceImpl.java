@@ -18,7 +18,10 @@ import com.sky.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
+
+import java.util.Objects;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -53,7 +56,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
-        if (employee.getStatus() == StatusConstant.DISABLE) {
+        if (Objects.equals(employee.getStatus(), StatusConstant.DISABLE)) {
             //账号被锁定
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
@@ -67,6 +70,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @param employeeDTO
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addEmployee(EmployeeDTO employeeDTO) {
         // 已有的属性拷贝
         Employee employee = new Employee();
@@ -105,6 +109,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      * 禁用/启用员工账号
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateStatus(Integer status, Long id) {
         Employee employee = Employee.builder()
                             .id(id)
@@ -131,6 +136,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      * 编辑(修改)员工信息
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateEmployee(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);

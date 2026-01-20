@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +37,7 @@ public class SetmealServiceImpl implements SetmealService {
      * 新增套餐
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveSetmeal(SetmealDTO setmealDTO) {
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);
@@ -71,6 +73,7 @@ public class SetmealServiceImpl implements SetmealService {
      * 不允许删除起售套餐
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteBatch(List<Long> ids) {
         // 检查是否处于起售状态
         if (ids==null || ids.isEmpty()){
@@ -92,6 +95,7 @@ public class SetmealServiceImpl implements SetmealService {
      * 处于起售状态的套餐不允许修改
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateSetmeal(SetmealDTO setmealDTO) {
         Setmeal setmeal = setmealMapper.getById(setmealDTO.getId());
         if (Objects.equals(setmeal.getStatus(), StatusConstant.ENABLE)){
@@ -114,7 +118,7 @@ public class SetmealServiceImpl implements SetmealService {
         } else {
             return;
         }
-        //TODO: debug测试newDishList是否已经包含setmealId
+
         setmealDishMapper.saveSetmealDishes(newDishList);
     }
 
@@ -139,6 +143,7 @@ public class SetmealServiceImpl implements SetmealService {
      * 起售/停售套餐
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateStatus(Integer status, Long id) {
         Setmeal setmeal = setmealMapper.getById(id);
         setmeal.setStatus(status);

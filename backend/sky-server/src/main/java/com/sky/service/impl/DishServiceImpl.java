@@ -19,6 +19,7 @@ import com.sky.vo.DishVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class DishServiceImpl implements DishService {
      * 新增菜品
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveWithFlavors(DishDTO dishDTO) {
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO, dish);
@@ -70,6 +72,7 @@ public class DishServiceImpl implements DishService {
      * 批量删除菜品
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteDishWithFlavors(List<Long> ids) {
         // 删除菜品
         // 起售中/关联套餐菜品不允许删除
@@ -114,6 +117,7 @@ public class DishServiceImpl implements DishService {
      * 修改菜品信息
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateDishWithFlavors(DishDTO dishDTO) {
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO, dish);
@@ -137,6 +141,7 @@ public class DishServiceImpl implements DishService {
      * 菜品起售/停售
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateStatus(Integer status, Long id) {
         Dish dish = dishMapper.getById(id);
         dish.setStatus(status);
