@@ -149,11 +149,19 @@ public class DishServiceImpl implements DishService {
     }
 
     /**
-     * 根据分类id查询菜品
+     * 根据分类id查询（起售状态）菜品
      */
     @Override
-    public List<Dish> getListByCategoryId(Integer categoryId) {
-        List<Dish> dishList = dishMapper.getListByCategoryId(categoryId);
+    public List<Dish> getListByCategoryId(Long categoryId) {
+        //List<Dish> dishList = dishMapper.getListByCategoryId(categoryId);
+
+        // 根据1个Dish对象数据而不是单单categoryId来查询菜品列表
+        Dish dish = Dish.builder()
+                .categoryId(categoryId)
+                .status(StatusConstant.ENABLE)
+                .build();
+        // 动态查询，这样可以确保只返回正处于起售的菜品
+        List<Dish> dishList = dishMapper.getListByCategoryId(dish);
         return dishList;
     }
 }
