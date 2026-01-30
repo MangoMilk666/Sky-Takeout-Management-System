@@ -1,16 +1,32 @@
 sky:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    host: localhost
-    port: 3306
-    database: sky_take_out
-    username: root
-    password: "20030402"
+    host: YOUR_HOST_ADDRESS
+    port: YOUR_DB_PORT
+    database: YOUR_DB_NAME
+    username: YOUR_DB_USERNAME
+    password: YOUR_DB_PASSWORD
   redis:
-    host: localhost
-    port: 6379
-    password: 123456
-    database: 0
+    host: YOUR_HOST_ADDRESS
+    port: YOUR_HOST_REDIS_PORT
+    password: YOUR_HOST_REDIS_PASSWORD
+    database: YOUR_HOST_REDIS_DB_NUM
+  jwt:
+    # ==========管理端========
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: YOUR_ADMIN_SECRET_KEY
+    # 设置jwt过期时间
+    admin-ttl: ${YOUR_ADMIN_TTL}
+    # 设置前端传递过来的令牌名称
+    admin-token-name: YOUR_ADMIN_TOKEN_NAME
+
+    # ==========用户端========
+    # 设置jwt签名加密时使用的秘钥
+    user-secret-key: YOUR_USER_SECRET_KEY
+    # 设置jwt过期时间
+    user-ttl: ${YOUR_USER_TTL}
+    # 设置前端传递过来的令牌名称
+    user-token-name: YOUR_USER_TOKEN_NAME
   wechat:
-    appid: wx9906db24ab9f1cca
-    secret: 6f5829f124aadf17a0db3639b4fdbf4e
+    appid: YOUR_WECHAT_MINIPROGRAM_ID
+    secret: YOUR_WECHAT_MINIPROGRAM_SECRET

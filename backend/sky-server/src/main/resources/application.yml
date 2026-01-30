@@ -3,6 +3,7 @@ server:
 
 spring:
   profiles:
+    # 激活dev配置，本配置引用其数据
     active: dev
   main:
     allow-circular-references: true
@@ -36,9 +37,21 @@ logging:
 
 sky:
   jwt:
+    # ==========管理端========
     # 设置jwt签名加密时使用的秘钥
-    admin-secret-key: itcast
+    admin-secret-key: ${sky.jwt.admin-secret-key}
     # 设置jwt过期时间
-    admin-ttl: 7200000
+    admin-ttl: ${sky.jwt.admin-ttl}
     # 设置前端传递过来的令牌名称
-    admin-token-name: token
+    admin-token-name: ${sky.jwt.admin-token-name}
+
+    # ==========用户端========
+    # 设置jwt签名加密时使用的秘钥
+    user-secret-key: ${sky.jwt.user-secret-key}
+    # 设置jwt过期时间
+    user-ttl: ${sky.jwt.user-ttl}
+    # 设置前端传递过来的令牌名称
+    user-token-name: ${sky.jwt.user-token-name}
+  wechat:
+    appid: ${sky.wechat.appid}
+    secret: ${sky.wechat.secret}
