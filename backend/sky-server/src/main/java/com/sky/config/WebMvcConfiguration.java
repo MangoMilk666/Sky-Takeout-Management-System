@@ -1,6 +1,7 @@
 package com.sky.config;
 
 import com.sky.interceptor.JwtTokenAdminInterceptor;
+import com.sky.interceptor.JwtTokenUserInterceptor;
 import com.sky.json.JacksonObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,9 @@ import java.util.List;
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
-    private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
+    private JwtTokenAdminInterceptor jwtTokenAdminInterceptor; //员工校验拦截器
+    @Autowired
+    private JwtTokenUserInterceptor jwtTokenUserInterceptor;//用户校验拦截器
 
     /**
      * 注册自定义拦截器
@@ -37,9 +40,15 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
      */
     protected void addInterceptors(InterceptorRegistry registry) {
         log.info("开始注册自定义拦截器...");
+        // 员工接口请求拦截器
         registry.addInterceptor(jwtTokenAdminInterceptor)
                 .addPathPatterns("/admin/**") //拦截路径
                 .excludePathPatterns("/admin/employee/login"); // 放行路径
+        // 用户接口请求拦截器
+        registry.addInterceptor(jwtTokenUserInterceptor)
+                .addPathPatterns("/user/**") // 拦截路径
+                .excludePathPatterns("/user/user/login") // 放行路径
+                .excludePathPatterns("/user/shop/status"); // 登录前需要能查看是否打烊
     }
 
     /**
