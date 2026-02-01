@@ -53,8 +53,9 @@ public class DishServiceImpl implements DishService {
             flavorList.forEach(dishFlavor -> {
                 dishFlavor.setDishId(dishId);
             });
+            // 当且仅当不为空时插入口味数据
+            dishFlavorMapper.insertBatch(flavorList);
         }
-        dishFlavorMapper.insertBatch(flavorList);
     }
 
     /**
@@ -132,10 +133,9 @@ public class DishServiceImpl implements DishService {
             flavorList.forEach(dishFlavor -> {
                 dishFlavor.setDishId(dishDTO.getId());
             });
-        } else {
-            return;
+            // 当且仅当不为空时插入口味数据
+            dishFlavorMapper.insertBatch(flavorList);
         }
-        dishFlavorMapper.insertBatch(flavorList);
     }
 
     /**
