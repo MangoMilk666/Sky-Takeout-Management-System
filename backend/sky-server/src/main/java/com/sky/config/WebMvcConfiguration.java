@@ -106,6 +106,12 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         // 访问接口文档：http://localhost:8080/doc.html
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+
+        // =============访问本地存储图片=============
+        // 这里的路径要和Service 里的 accessUrl 匹配
+        // 访问地址设置为 /admin/common/upload/xxx.jpg
+        registry.addResourceHandler("/admin/common/upload/**")
+                .addResourceLocations("file:/Users/henrysang/Documents/Sky-Takeout/data/img_data/");
     }
 
     /**
