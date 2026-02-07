@@ -35,7 +35,7 @@ public class DishController {
         dishService.saveWithFlavors(dishDTO);
 
         // 精确清理redis缓存的（旧）数据
-        String key = "dish_id" + dishDTO.getCategoryId();
+        String key = "dish_" + dishDTO.getCategoryId();
         cleanCache(key);
         return Result.success();
     }
@@ -112,7 +112,7 @@ public class DishController {
     }
 
     /**
-     * 当前类清理缓存的方法
+     * 当前类清理缓存的方法，可用SpringCache注解代替
      */
     private void cleanCache(String pattern){
         // 匹配redis待删除的keys
