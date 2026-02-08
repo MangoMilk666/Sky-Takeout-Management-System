@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
 import com.sky.context.BaseContext;
 import com.sky.dto.ShoppingCartDTO;
 import com.sky.entity.Dish;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -25,11 +27,37 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Autowired
     private SetmealMapper setmealMapper;
 
+    /**
+     * 减少购物车中一个商品数量
+     * @param shoppingCartDTO
+     */
     @Override
     public void subItem(ShoppingCartDTO shoppingCartDTO) {
-        System.out.println();
+        // 封装一个查询购物车对象
+        ShoppingCart queryCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, queryCart);
+        queryCart.setUserId(BaseContext.getCurrentId());
+
+        // 查询
+        ShoppingCart cart = shoppingCartMapper.getCartItem(queryCart);
+
+        // 未查询到
+        if (cart == null) {
+            return;
+        }
+
+        if (cart.getNumber() == 1){ //查询到一个，直接删除
+            shoppingCartMapper.delete(cart);
+        } else { //查询到多个，update
+            cart.setNumber(cart.getNumber() - 1);
+            shoppingCartMapper.updateById(cart);
+        }
     }
 
+    /**
+     * 添加购物车商品
+     * @param shoppingCartDTO
+     */
     @Override
     public void addItem(ShoppingCartDTO shoppingCartDTO) {
         // 查询菜品或套餐信息
@@ -80,5 +108,25 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             }
             shoppingCartMapper.insert(cart);
         }
+    }
+
+    /**
+     * 查看购物车商品
+     * @return
+     */
+    @Override
+    public List<ShoppingCart> list() {
+        Long userId = BaseContext.getCurrentId();
+        List<ShoppingCart> list = shoppingCartMapper.getList(userId);
+        return list;
+    }
+
+    /**
+     * 清空当前用户的购物车
+     */
+    @Override
+    public void clearShoppingCart() {
+        Long userId = BaseContext.getCurrentId();
+        shoppingCartMapper.clearCart(userId);
     }
 }
