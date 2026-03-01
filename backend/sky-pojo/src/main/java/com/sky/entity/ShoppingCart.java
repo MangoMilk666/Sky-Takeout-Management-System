@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 购物车
+ * 购物车 - 不是整个购物车整体，而是购物车中的一件商品明细
  */
 @Data
 @Builder
