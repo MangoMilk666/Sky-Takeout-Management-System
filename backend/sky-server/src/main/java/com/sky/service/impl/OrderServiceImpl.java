@@ -18,6 +18,7 @@ import com.sky.vo.OrderSubmitVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,9 +40,10 @@ public class OrderServiceImpl implements OrderService {
      * @param ordersSubmitDTO
      * @return
      */
+    @Transactional
     @Override
     public OrderSubmitVO submitOrder(OrdersSubmitDTO ordersSubmitDTO) {
-        // 处理业务异常情况
+        // 1.处理业务异常情况
         // 地址薄为空
         AddressBook addressBook = addressBookMapper.getById(ordersSubmitDTO.getAddressBookId());
         if (addressBook == null) {
@@ -53,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
             throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
         }
 
-        // 订单表插入1条数据
+        // 2.订单表插入1条数据
         // 封装一个Orders对象
         Orders order = new Orders();
         BeanUtils.copyProperties(ordersSubmitDTO, order);
@@ -62,14 +64,14 @@ public class OrderServiceImpl implements OrderService {
         order.setUserId(BaseContext.getCurrentId()); //用户id
         order.setOrderTime(LocalDateTime.now());
         order.setPayStatus(Orders.UN_PAID);
-        order.setUserName(addressBook.getConsignee()); //用户名，收货人？
+//        order.setUserName(addressBook.getConsignee()); //用户名，收货人？
         order.setPhone(addressBook.getPhone());
         order.setAddress(addressBook.getDetail()); // 用户地址
         order.setConsignee(addressBook.getConsignee()); //收货人
 
         orderMapper.insert(order); //插入后设置返回id
 
-        // 订单明细表插入n条数据
+        // 3.订单明细表插入n条数据
         // 订单明细列表数据在购物车列表数据基础上得到
         List<OrderDetail> orderDetailList = new ArrayList<>();
         for (ShoppingCart shoppingCart : shoppingCartList) {
@@ -79,9 +81,9 @@ public class OrderServiceImpl implements OrderService {
             orderDetailList.add(orderDetail);
         }
         orderDetailMapper.insertBatchOrderDetail(orderDetailList);
-        // 清空用户当前的购物车数据
+        // 4.清空用户当前的购物车数据
         shoppingCartMapper.clearCart(BaseContext.getCurrentId());
-        // 封装返回结果VO
+        // 5.封装返回结果VO
         OrderSubmitVO orderSubmitVO = new OrderSubmitVO();
         orderSubmitVO.setId(order.getId());
         orderSubmitVO.setOrderNumber(order.getNumber());
