@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -170,4 +171,28 @@ public class OrderServiceImpl implements OrderService {
         }
         return new PageResult(historyOrderPage.getTotal(), historyOrderPage.getResult());
     }
-}
+
+        /**
+         * 测试用：跳过微信支付，直接更新订单状态
+         */
+        @Override
+        public String getEstimatedTimeForTest(OrdersPaymentDTO ordersPaymentDTO) {
+            // 1. 根据订单号查询订单
+            String orderNumber = ordersPaymentDTO.getOrderNumber();
+            Orders orders = orderMapper.getByNumber(orderNumber);
+
+            // 2. 更新订单状态和支付状态
+            // 状态：2-待接单，支付状态：1-已支付
+            orders.setStatus(Orders.TO_BE_CONFIRMED);
+            orders.setPayStatus(Orders.PAID);
+            orders.setCheckoutTime(LocalDateTime.now());
+
+            orderMapper.update(orders);
+
+            // 3. 计算预计送达时间（当前时间 + 1小时）
+            LocalDateTime estimatedTime = orders.getOrderTime().plusHours(1);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            return estimatedTime.format(formatter);
+        }
+    }

@@ -37,6 +37,8 @@ public class OrderController {
      * @param ordersPaymentDTO
      * @return
      */
+    // 正确逻辑（暂时跳过）
+    /**
     @PutMapping("/payment")
     @ApiOperation("订单支付")
     public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
@@ -44,6 +46,22 @@ public class OrderController {
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         log.info("生成预支付交易单：{}", orderPaymentVO);
         return Result.success(orderPaymentVO);
+    }*/
+
+    /**
+     * 订单支付
+     *
+     * @param ordersPaymentDTO
+     * @return
+     */
+    // 测试使用逻辑
+    @PutMapping("/payment")
+    @ApiOperation("订单支付")
+    public Result<String> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
+        log.info("订单支付：{}", ordersPaymentDTO);
+        String estimatedDeliveryTime = orderService.getEstimatedTimeForTest(ordersPaymentDTO);
+        log.info("支付完成!");
+        return Result.success(estimatedDeliveryTime);
     }
 
     /**

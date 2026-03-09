@@ -35,4 +35,11 @@ public interface OrderService {
      * @return
      */
     PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    /**
+     * 仅供测试使用，跳过支付逻辑，返回预计送达时间
+     * @param ordersPaymentDTO
+     * @return
+     */
+    String getEstimatedTimeForTest(OrdersPaymentDTO ordersPaymentDTO);
 }
