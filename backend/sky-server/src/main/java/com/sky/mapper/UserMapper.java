@@ -23,4 +23,11 @@ public interface UserMapper {
     void saveUser(User user);
 
 
+    /**
+     * 根据userId查找User
+     * @param userId
+     * @return
+     */
+    @Select("select * from user where id = #{userId}")
+    User getById(Long userId);
 }
