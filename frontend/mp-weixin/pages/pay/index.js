@@ -222,35 +222,58 @@ var _api = __webpack_require__(/*! @/pages/api/api.js */ 24);function ownKeys(ob
           payMethod: this.activeRadio === 0 ? 1 : 2 };
 
         (0, _api.paymentOrder)(params).then(function (res) {
-          if (res.code === 1) {
-            wx.requestPayment({
-              nonceStr: res.data.nonceStr,
-              package: res.data.packageStr,
-              paySign: res.data.paySign,
-              timeStamp: res.data.timeStamp,
-              signType: res.data.signType,
-              success:function(res){
-                wx.showModal({
-                  title: '提示',
-                  content: '支付成功',
-                  success:function(){
-                    uni.redirectTo({url: '/pages/success/index?orderId=' + _this.orderId });
-                  }
-                })
-                console.log('支付成功!')
-              }
-            })
+          /** 
+        //   if (res.code === 1) {
+        //     wx.requestPayment({
+        //       nonceStr: res.data.nonceStr,
+        //       package: res.data.packageStr,
+        //       paySign: res.data.paySign,
+        //       timeStamp: res.data.timeStamp,
+        //       signType: res.data.signType,
+        //       success:function(res){
+        //         wx.showModal({
+        //           title: '提示',
+        //           content: '支付成功',
+        //           success:function(){
+        //             uni.redirectTo({url: '/pages/success/index?orderId=' + _this.orderId });
+        //           }
+        //         })
+        //         console.log('支付成功!')
+        //       }
+        //     })
 
 
-            //uni.redirectTo({url: '/pages/success/index?orderId=' + _this.orderId });
+        //     //uni.redirectTo({url: '/pages/success/index?orderId=' + _this.orderId });
 
-          } else {
-            wx.showModal({
-              title: '提示',
-              content: res.msg
-            })
-          }
+        //   } else {
+        //     wx.showModal({
+        //       title: '提示',
+        //       content: res.msg
+        //     })
+        //   }
+        // });
+        */
+       // 只要后端返回下单成功（res.code === 1），我们就假装微信支付也成功了
+       if (res.code === 1) {
+        wx.showModal({
+            title: '提示（测试模式）',
+            content: '模拟支付成功',
+            showCancel: false, // 隐藏取消按钮，强制点击确定
+            success: function() {
+                // 直接执行跳转到成功页面的逻辑
+                uni.redirectTo({
+                    url: '/pages/success/index?orderId=' + _this.orderId 
+                });
+            }
         });
+        console.log('测试模式：已跳过微信支付直接进入成功流程');
+    } else {
+        wx.showModal({
+            title: '提示',
+            content: res.msg
+        });
+    }
+});
       }
 
     },
