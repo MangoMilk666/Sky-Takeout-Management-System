@@ -5,6 +5,7 @@ import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.result.PageResult;
+import com.sky.vo.OrderHistoryVO;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
 
@@ -42,4 +43,23 @@ public interface OrderService {
      * @return
      */
     String getEstimatedTimeForTest(OrdersPaymentDTO ordersPaymentDTO);
+
+    /**
+     * 根据订单id查询订单详情
+     * @param orderId
+     * @return
+     */
+    OrderHistoryVO getDetailsById(Long orderId);
+
+    /**
+     * 取消订单
+     * @param id
+     */
+    void cancelOrder(Long id);
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    void placeSameNewOrder(Long id);
 }

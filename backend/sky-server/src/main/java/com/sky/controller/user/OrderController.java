@@ -7,6 +7,7 @@ import com.sky.dto.OrdersSubmitDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
+import com.sky.vo.OrderHistoryVO;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
 import io.swagger.annotations.Api;
@@ -73,5 +74,37 @@ public class OrderController {
         log.info("查询历史订单: {}", ordersPageQueryDTO);
         PageResult pageResult = orderService.pageQuery(ordersPageQueryDTO);
         return Result.success(pageResult);
+    }
+    /**
+     * 查询订单详情
+     */
+    @GetMapping("/orderDetail/{id}")
+    @ApiOperation("查询订单详情")
+    public Result<OrderHistoryVO> getOrderDetails(@PathVariable Long id){
+        log.info("查询id为{}的订单详情", id);
+        OrderHistoryVO orderHistoryVO = orderService.getDetailsById(id);
+        return Result.success(orderHistoryVO);
+    }
+
+    /**
+     * 取消订单
+     */
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("取消订单")
+    public Result cancelOrder(@PathVariable Long id){
+        log.info("取消id为{}的订单", id);
+        orderService.cancelOrder(id);
+        return Result.success();
+    }
+
+    /**
+     * 再来一单
+     */
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("再来一单")
+    public Result placeSameNewOrder(@PathVariable Long id){
+        log.info("再来一单，内容与id为{}订单内容相同", id);
+        orderService.placeSameNewOrder(id);
+        return Result.success();
     }
 }

@@ -37,4 +37,12 @@ public interface OrderMapper {
      */
     @Select("select * from orders where user_id = #{userId}")
     Page<OrderHistoryVO> pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
+
+
+    /**
+     * 根据订单id查询订单
+     */
+    @Select("select * from orders where id = #{orderId}")
+    Orders getById(Long orderId);
+
 }

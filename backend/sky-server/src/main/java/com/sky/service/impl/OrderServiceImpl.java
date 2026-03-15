@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -136,6 +137,7 @@ public class OrderServiceImpl implements OrderService {
      *
      * @param outTradeNo
      */
+    @Transactional
     public void paySuccess(String outTradeNo) {
 
         // 根据订单号查询订单
@@ -195,4 +197,57 @@ public class OrderServiceImpl implements OrderService {
 
             return estimatedTime.format(formatter);
         }
+
+    /**
+     * 根据订单id查询订单详情
+     * @param orderId
+     * @return
+     */
+    @Override
+    public OrderHistoryVO getDetailsById(Long orderId) {
+        Orders orders = orderMapper.getById(orderId);
+        OrderHistoryVO orderHistoryVO = new OrderHistoryVO();
+        BeanUtils.copyProperties(orders, orderHistoryVO);
+        List<OrderDetail> orderDetailList = orderDetailMapper.getDetailByOrderId(orderId);
+        orderHistoryVO.setOrderDetailList(orderDetailList);
+        return orderHistoryVO;
     }
+
+    /**
+     * 取消订单
+     * @param id
+     */
+    @Override
+    @Transactional
+    public void cancelOrder(Long id) {
+        // 查询到具体订单
+        Orders orders = orderMapper.getById(id);
+        // 处理特殊情况：订单不存在
+        if (orders == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        // 特殊情况：商家已接单/在派送/已完成/已取消的订单无法取消
+        if (Objects.equals(orders.getStatus(), Orders.CONFIRMED) || Objects.equals(orders.getStatus(), Orders.DELIVERY_IN_PROGRESS) ||
+                Objects.equals(orders.getStatus(), Orders.COMPLETED) || Objects.equals(orders.getStatus(), Orders.CANCELLED)) {
+            throw new OrderBusinessException("取消失败!" + MessageConstant.ORDER_STATUS_ERROR);
+        }
+        orders.setStatus(Orders.CANCELLED);
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    @Override
+    public void placeSameNewOrder(Long id) {
+        Orders orders = orderMapper.getById(id);
+        // 特殊情况处理
+        if (orders == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        OrdersSubmitDTO ordersSubmitDTO = new OrdersSubmitDTO();
+        BeanUtils.copyProperties(orders, ordersSubmitDTO);
+        submitOrder(ordersSubmitDTO);
+    }
+}
