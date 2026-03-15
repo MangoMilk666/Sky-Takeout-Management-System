@@ -222,7 +222,7 @@ var _api = __webpack_require__(/*! @/pages/api/api.js */ 24);function ownKeys(ob
           payMethod: this.activeRadio === 0 ? 1 : 2 };
 
         (0, _api.paymentOrder)(params).then(function (res) {
-          /** 
+          /** 原来的支付校验逻辑，如果要恢复原样，需要取消注释 开始行：
         //   if (res.code === 1) {
         //     wx.requestPayment({
         //       nonceStr: res.data.nonceStr,
@@ -252,7 +252,9 @@ var _api = __webpack_require__(/*! @/pages/api/api.js */ 24);function ownKeys(ob
         //     })
         //   }
         // });
-        */
+        结束行 */
+       
+        // 开始行：现有的跳过支付校验逻辑，如果要恢复校验，需要删去这段
        // 只要后端返回下单成功（res.code === 1），我们就假装微信支付也成功了
        if (res.code === 1) {
         wx.showModal({
@@ -273,7 +275,8 @@ var _api = __webpack_require__(/*! @/pages/api/api.js */ 24);function ownKeys(ob
             content: res.msg
         });
     }
-});
+}); // 结束行
+
       }
 
     },

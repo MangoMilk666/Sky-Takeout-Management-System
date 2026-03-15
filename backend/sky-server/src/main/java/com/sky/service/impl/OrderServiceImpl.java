@@ -231,7 +231,9 @@ public class OrderServiceImpl implements OrderService {
                 Objects.equals(orders.getStatus(), Orders.COMPLETED) || Objects.equals(orders.getStatus(), Orders.CANCELLED)) {
             throw new OrderBusinessException("取消失败!" + MessageConstant.ORDER_STATUS_ERROR);
         }
+        // 更新订单状态，取消时间
         orders.setStatus(Orders.CANCELLED);
+        orders.setCancelTime(LocalDateTime.now());
         orderMapper.update(orders);
     }
 
@@ -241,13 +243,20 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void placeSameNewOrder(Long id) {
+        // 得到再来一单的订单内容
         Orders orders = orderMapper.getById(id);
         // 特殊情况处理
         if (orders == null){
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
-        OrdersSubmitDTO ordersSubmitDTO = new OrdersSubmitDTO();
-        BeanUtils.copyProperties(orders, ordersSubmitDTO);
-        submitOrder(ordersSubmitDTO);
+        // 快捷填充购物车
+        List<OrderDetail> orderDetailList = orderDetailMapper.getDetailByOrderId(id);
+        for  (OrderDetail orderDetail : orderDetailList) {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            BeanUtils.copyProperties(orderDetail,shoppingCart);
+            shoppingCart.setUserId(BaseContext.getCurrentId());
+            shoppingCart.setCreateTime(LocalDateTime.now());
+            shoppingCartMapper.insert(shoppingCart);
+        }
     }
 }
