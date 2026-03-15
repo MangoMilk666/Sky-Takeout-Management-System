@@ -78,8 +78,8 @@ public class OrderController {
      */
     @GetMapping("/orderDetail/{id}")
     @ApiOperation("查询订单详情")
-    public Result<OrderHistoryVO> getOrderDetails(@PathVariable Long id){
-        log.info("查询id为{}的订单详情", id);
+    public Result<OrderHistoryVO> getOrderDetailsByUser(@PathVariable Long id){
+        log.info("用户端查询id为{}的订单详情", id);
         OrderHistoryVO orderHistoryVO = orderService.getDetailsById(id);
         return Result.success(orderHistoryVO);
     }
@@ -91,7 +91,7 @@ public class OrderController {
     @ApiOperation("取消订单")
     public Result cancelOrder(@PathVariable Long id){
         log.info("取消id为{}的订单", id);
-        orderService.cancelOrder(id);
+        orderService.cancelOrderByUser(id);
         return Result.success();
     }
 

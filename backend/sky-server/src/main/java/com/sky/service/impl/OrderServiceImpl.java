@@ -5,9 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
@@ -17,6 +15,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.*;
+import org.aspectj.bridge.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -218,7 +217,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public void cancelOrder(Long id) {
+    public void cancelOrderByUser(Long id) {
         // 查询到具体订单
         Orders orders = orderMapper.getById(id);
         // 处理特殊情况：订单不存在
@@ -282,4 +281,89 @@ public class OrderServiceImpl implements OrderService {
         }
         return new PageResult(historyOrderPage.getTotal(), historyOrderPage.getResult());
     }
+
+    /**
+     * 各个状态的订单数量统计
+     * @return
+     */
+    @Override
+    public OrderStatisticsVO getOrderStatistics() {
+        OrderStatisticsVO vo = new OrderStatisticsVO();
+        Integer confirmed = orderMapper.countByOrderStatus(Orders.CONFIRMED);
+        Integer toBeConfirmed = orderMapper.countByOrderStatus(Orders.TO_BE_CONFIRMED);
+        Integer deliveryInProgress = orderMapper.countByOrderStatus(Orders.DELIVERY_IN_PROGRESS);
+        vo.setConfirmed(confirmed);
+        vo.setToBeConfirmed(toBeConfirmed);
+        vo.setDeliveryInProgress(deliveryInProgress);
+        return vo;
+    }
+
+    /**
+     * 管理端接单
+     * @param id
+     */
+    @Override
+    public void confirmOrderByAdmin(Long id) {
+        // 查询出订单
+        Orders order = orderMapper.getById(id);
+        // 修改订单状态
+        order.setStatus(Orders.CONFIRMED);
+        // update结果
+        orderMapper.update(order);
+    }
+
+    /**
+     * 管理端拒单
+     * @param ordersRejectionDTO
+     */
+    @Override
+    @Transactional
+    public void rejectOrderByAdmin(OrdersRejectionDTO ordersRejectionDTO) {
+        // 查找订单
+        Orders orders = orderMapper.getById(ordersRejectionDTO.getId());
+        // 添加拒单原因
+        orders.setRejectionReason(ordersRejectionDTO.getRejectionReason());
+
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 管理端取消订单
+     * @param ordersCancelDTO
+     */
+    @Override
+    public void cancelOrderByAdmin(OrdersCancelDTO ordersCancelDTO) {
+        // find orders
+        Orders order = orderMapper.getById(ordersCancelDTO.getId());
+        order.setStatus(Orders.CANCELLED);
+        order.setCancelTime(LocalDateTime.now());
+        order.setCancelReason(ordersCancelDTO.getCancelReason());
+
+        orderMapper.update(order);
+    }
+
+    /**
+     * 派送订单
+     * @param id
+     */
+    @Override
+    public void deliverOrder(Long id) {
+        Orders order = orderMapper.getById(id);
+        order.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orderMapper.update(order);
+    }
+
+    /**
+     * 完成订单
+     * @param id
+     */
+    @Override
+    public void completeOrder(Long id) {
+        Orders orders = orderMapper.getById(id);
+        orders.setStatus(Orders.COMPLETED);
+        orders.setDeliveryTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
+
+
 }
