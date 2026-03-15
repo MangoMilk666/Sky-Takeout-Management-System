@@ -37,4 +37,27 @@
         </set>
         where id = #{id}
     </update>
+
+    <select id="pageQueryByAdmin" resultType="com.sky.vo.OrderHistoryVO">
+        <!--管理端的条件分页查询-->
+        select * from orders
+        <where>
+            <if test="number!=null and number != ''">
+                and number like concate('%', number, '%')
+            </if>
+            <if test="phone!=null and phone != ''">
+                and phone like concate('%', phone, '%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="beginTime != null">
+                and order_time &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                 <!--注意不能直接写<号，会被判定为尖括号-->
+                and order_time &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
 </mapper>

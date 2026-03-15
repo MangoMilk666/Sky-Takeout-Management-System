@@ -5,7 +5,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.DishPageQueryDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -159,14 +158,14 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO) {
+    public PageResult pageQueryByUser(OrdersPageQueryDTO ordersPageQueryDTO) {
         // 分页参数
         PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
         // 获取当前用户id
         ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
 
         // 分页查询，最终返回Page<OrderHistoryVO>对象
-        Page<OrderHistoryVO> historyOrderPage = orderMapper.pageQuery(ordersPageQueryDTO);
+        Page<OrderHistoryVO> historyOrderPage = orderMapper.pageQueryByUser(ordersPageQueryDTO);
         for (OrderHistoryVO orderHistoryVO : historyOrderPage.getResult()) {
             List<OrderDetail> orderDetailList = orderDetailMapper.getDetailByOrderId(orderHistoryVO.getId());
             orderHistoryVO.setOrderDetailList(orderDetailList);
@@ -258,5 +257,29 @@ public class OrderServiceImpl implements OrderService {
             shoppingCart.setCreateTime(LocalDateTime.now());
             shoppingCartMapper.insert(shoppingCart);
         }
+    }
+
+    /**
+     * 管理段分页查询订单
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult pageQueryByAdmin(OrdersPageQueryDTO ordersPageQueryDTO) {
+        // 分页参数
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+
+        // 分页查询，最终返回Page<OrderHistoryVO>对象
+        Page<OrderHistoryVO> historyOrderPage = orderMapper.pageQueryByAdmin(ordersPageQueryDTO);
+        for (OrderHistoryVO orderHistoryVO : historyOrderPage.getResult()) {
+            StringBuffer orderDishesBuffer = new StringBuffer();
+            List<OrderDetail> orderDetailList = orderDetailMapper.getDetailByOrderId(orderHistoryVO.getId());
+            for (OrderDetail orderDetail : orderDetailList) {
+                orderDishesBuffer.append(orderDetail.getName());
+                orderDishesBuffer.append(", ");
+            }
+            orderHistoryVO.setOrderDishes(orderDishesBuffer.toString());
+        }
+        return new PageResult(historyOrderPage.getTotal(), historyOrderPage.getResult());
     }
 }

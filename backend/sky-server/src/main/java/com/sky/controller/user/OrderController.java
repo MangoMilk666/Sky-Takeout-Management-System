@@ -1,6 +1,5 @@
 package com.sky.controller.user;
 
-import com.sky.dto.DishPageQueryDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -8,7 +7,6 @@ import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderHistoryVO;
-import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -71,8 +69,8 @@ public class OrderController {
     @GetMapping("/historyOrders")
     @ApiOperation("历史订单查询")
     public Result<PageResult> getHistoryOrdersPage(OrdersPageQueryDTO ordersPageQueryDTO) {
-        log.info("查询历史订单: {}", ordersPageQueryDTO);
-        PageResult pageResult = orderService.pageQuery(ordersPageQueryDTO);
+        log.info("用户端查询历史订单: {}", ordersPageQueryDTO);
+        PageResult pageResult = orderService.pageQueryByUser(ordersPageQueryDTO);
         return Result.success(pageResult);
     }
     /**

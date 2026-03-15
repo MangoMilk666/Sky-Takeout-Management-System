@@ -91,4 +91,7 @@ public class OrderHistoryVO implements Serializable {
     // 订单详情
     private List<OrderDetail> orderDetailList = new ArrayList<>();
 
+    //订单菜品信息(String形式)
+    private String orderDishes;
+
 }

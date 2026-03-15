@@ -1,6 +1,5 @@
 package com.sky.service;
 
-import com.sky.dto.DishPageQueryDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -32,10 +31,10 @@ public interface OrderService {
     void paySuccess(String outTradeNo);
 
     /**
-     * 分页查询历史订单
+     * 用户端分页查询历史订单
      * @return
      */
-    PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
+    PageResult pageQueryByUser(OrdersPageQueryDTO ordersPageQueryDTO);
 
     /**
      * 仅供测试使用，跳过支付逻辑，返回预计送达时间
@@ -62,4 +61,11 @@ public interface OrderService {
      * @param id
      */
     void placeSameNewOrder(Long id);
+
+    /**
+     * 管理段分页查询订单
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    PageResult pageQueryByAdmin(OrdersPageQueryDTO ordersPageQueryDTO);
 }
