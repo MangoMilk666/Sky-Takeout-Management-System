@@ -58,9 +58,9 @@ public class OrderController {
      */
     @PutMapping("/confirm")
     @ApiOperation("管理端接单")
-    public Result confirmOrder(@RequestBody Long id){
-        log.info("管理端接单id为{}的订单", id);
-        orderService.confirmOrderByAdmin(id);
+    public Result confirmOrder(@RequestBody OrdersConfirmDTO ordersConfirmDTO){
+        log.info("管理端接单: {}", ordersConfirmDTO);
+        orderService.confirmOrderByAdmin(ordersConfirmDTO);
         return Result.success();
     }
 

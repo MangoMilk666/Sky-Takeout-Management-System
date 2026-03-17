@@ -300,12 +300,11 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 管理端接单
-     * @param id
      */
     @Override
-    public void confirmOrderByAdmin(Long id) {
+    public void confirmOrderByAdmin(OrdersConfirmDTO ordersConfirmDTO) {
         // 查询出订单
-        Orders order = orderMapper.getById(id);
+        Orders order = orderMapper.getById(ordersConfirmDTO.getId());
         // 修改订单状态
         order.setStatus(Orders.CONFIRMED);
         // update结果

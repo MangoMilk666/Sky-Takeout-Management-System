@@ -76,9 +76,8 @@ public interface OrderService {
 
     /**
      * 管理端接单
-     * @param id
      */
-    void confirmOrderByAdmin(Long id);
+    void confirmOrderByAdmin(OrdersConfirmDTO ordersConfirmDTO);
 
     /**
      * 管理端拒单
