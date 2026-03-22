@@ -1,7 +1,6 @@
 package com.sky.mapper;
 
 import com.sky.entity.User;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -37,5 +36,14 @@ public interface UserMapper {
      * 查询时间之前注册的总用户数
      */
     @Select("select count(id) from user where create_time<=#{finalTime}")
-    int getUserNum(LocalDateTime finalTime);
+    int getUserNumUntil(LocalDateTime finalTime);
+
+    /**
+     * 统计新用户
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Select("select count(id) from user where create_time>=#{begin} and create_time<=#{end}")
+    Integer getNewUserNum(LocalDateTime begin, LocalDateTime end);
 }

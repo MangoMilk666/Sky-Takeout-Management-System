@@ -4,17 +4,14 @@ import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
-import com.sky.result.Result;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
 import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
-import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,7 +81,7 @@ public class ReportServiceImpl implements ReportService {
         for (LocalDate d : dateList) {
             LocalDateTime initialTime = LocalDateTime.of(d, LocalTime.MIN);
             LocalDateTime finalTime = LocalDateTime.of(d, LocalTime.MAX);
-            int userNum = userMapper.getUserNum(finalTime);
+            int userNum = userMapper.getUserNumUntil(finalTime);
             int newUser = !totalUserList.isEmpty() ? userNum - totalUserList.get(totalUserList.size()-1) : userNum;
             totalUserList.add(userNum);
             newUserList.add(newUser);

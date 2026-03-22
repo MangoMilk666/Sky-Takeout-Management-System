@@ -75,5 +75,13 @@
         </where>
         group by od.name order by number desc limit 10;
     </select>
+    <select id="countByOrderStatus" resultType="java.lang.Integer">
+        select count(id) from orders
+        <where>
+            <if test="orderStatus != null">
+                status = #{orderStatus}
+            </if>
+        </where>
+    </select>
 
 </mapper>
