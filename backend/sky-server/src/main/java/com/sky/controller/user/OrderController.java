@@ -105,4 +105,15 @@ public class OrderController {
         orderService.placeSameNewOrder(id);
         return Result.success();
     }
+
+    /**
+     * 用户催单
+     */
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("用户催单")
+    public Result remind(@PathVariable Long id){
+        log.info("用户催单: {}", id);
+        orderService.remindByUser(id);
+        return Result.success();
+    }
 }

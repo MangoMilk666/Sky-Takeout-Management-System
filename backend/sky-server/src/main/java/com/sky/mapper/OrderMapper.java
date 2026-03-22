@@ -7,6 +7,8 @@ import com.sky.vo.OrderHistoryVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -62,4 +64,11 @@ public interface OrderMapper {
      */
     @Select("select * from orders where status=#{status} and order_time < #{time}")
     List<Orders> getByStatusAndOrderTimeLT(Integer status, LocalDateTime time);
+
+    /**
+     * 查询时间范围内的营业额
+     */
+    @Select("select (case when sum(amount) is not null then sum(amount) else 0 end) from orders where status = 5 and order_time>=#{beginTime} and order_time <= #{endTime}")
+    BigDecimal getTurnoverStatistics(LocalDateTime beginTime, LocalDateTime endTime);
+
 }
