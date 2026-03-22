@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -15,6 +16,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.*;
+import com.sky.websocket.WebSocketServer;
 import org.aspectj.bridge.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -43,6 +43,8 @@ public class OrderServiceImpl implements OrderService {
     // 注入vx支付工具类
     @Autowired
     private WeChatPayUtil weChatPayUtil;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 用户下单
@@ -150,6 +152,20 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        // 通过websocket向客户端浏览器推送消息type orderId, content
+        Map map = new HashMap();
+        // 来单提醒
+        map.put("type", 1);
+        // 订单id
+        map.put("orderId", ordersDB.getId());
+        // 提示内容
+        map.put("content", "订单号"+outTradeNo);
+
+        // 转json字符串
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
     }
 
     /**
@@ -192,6 +208,15 @@ public class OrderServiceImpl implements OrderService {
             // 3. 计算预计送达时间（当前时间 + 1小时）
             LocalDateTime estimatedTime = orders.getOrderTime().plusHours(1);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            // 来单提醒推送
+            Map map = new HashMap();
+            map.put("type", 1); // 1表示来单提醒，2表示客户催单
+            map.put("orderId", orders.getId());
+            map.put("content", "订单号：" + orderNumber);
+            // 通过 websocket 向管理端浏览器推送消息
+            String json = JSON.toJSONString(map);
+            webSocketServer.sendToAllClient(json);
 
             return estimatedTime.format(formatter);
         }
