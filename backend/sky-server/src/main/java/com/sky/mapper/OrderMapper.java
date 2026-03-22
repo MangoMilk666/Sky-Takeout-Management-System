@@ -8,7 +8,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -71,4 +70,15 @@ public interface OrderMapper {
     @Select("select (case when sum(amount) is not null then sum(amount) else 0 end) from orders where status = 5 and order_time>=#{beginTime} and order_time <= #{endTime}")
     BigDecimal getTurnoverStatistics(LocalDateTime beginTime, LocalDateTime endTime);
 
+    /**
+     * 查询时间范围内订单总数
+     */
+    @Select("select count(id) from orders where order_time>=#{initialTime} and order_time<=#{finalTime}")
+    int countByRange(LocalDateTime initialTime, LocalDateTime finalTime);
+
+    /**
+     * 查询时间范围内指定状态订单数
+     */
+    @Select("select count(id) from orders where status=#{status} and order_time>=#{initialTime} and order_time<=#{finalTime}")
+    int countByStatusAndRange(LocalDateTime initialTime, LocalDateTime finalTime, Integer status);
 }
