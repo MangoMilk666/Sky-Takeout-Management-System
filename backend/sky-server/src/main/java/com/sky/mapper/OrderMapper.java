@@ -1,15 +1,18 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderHistoryVO;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -81,4 +84,11 @@ public interface OrderMapper {
      */
     @Select("select count(id) from orders where status=#{status} and order_time>=#{initialTime} and order_time<=#{finalTime}")
     int countByStatusAndRange(LocalDateTime initialTime, LocalDateTime finalTime, Integer status);
+
+    /**
+     * 统计销量top10(指定订单状态下)
+     * 返回一个包含多个 Map 的列表，每个 Map 代表一行记录
+     */
+    // 不需要@MapKey()，iff一个字段映射大的map才需要
+    List<GoodsSalesDTO> getTop10Sales(LocalDateTime begin, LocalDateTime end, Integer status);
 }
