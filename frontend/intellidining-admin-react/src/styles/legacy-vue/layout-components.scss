@@ -1,0 +1,217 @@
+.app-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  min-width: 1366px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.main-container {
+  min-height: 100%;
+  transition: margin-left 0.28s;
+  margin-left: $sideBarWidth;
+  background: $gray-5;
+  position: relative;
+  height: 100%;
+  width: calc(100% - 190px);
+}
+
+.sidebar-container {
+  transition: width 0.28s;
+  width: $sideBarWidth !important;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1001;
+  overflow: hidden;
+}
+
+.hideSidebar {
+  .main-container {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+  }
+
+  .sidebar-container {
+    width: 80px !important;
+  }
+}
+
+.logo {
+  text-align: center;
+  background-color: #ffc100;
+  padding: 15px 0 0;
+  height: 60px;
+
+  img {
+    display: inline-block;
+  }
+}
+
+.sidebar-logo-mini {
+  img {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.el-scrollbar {
+  height: 100%;
+  background-color: rgb(52, 55, 68);
+}
+
+.el-menu {
+  border: none;
+  height: calc(95vh - 23px);
+  width: 100% !important;
+  padding: 47px 15px 0;
+}
+
+.navbar {
+  height: 60px;
+  position: relative;
+  background: #ffc100;
+
+  .statusBox {
+    float: left;
+    height: 100%;
+    align-items: center;
+    display: flex;
+  }
+
+  .hamburger-container {
+    padding: 0 12px 0 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.025);
+    }
+  }
+
+  .right-menu {
+    float: right;
+    margin-right: 20px;
+    color: #333333;
+    font-size: 14px;
+
+    span {
+      padding: 0 10px;
+      width: 130px;
+      display: inline-block;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.52);
+      }
+    }
+
+    .amendPwdIcon {
+      i {
+        width: 18px;
+        height: 18px;
+        background: url('@/assets/icons/btn_gaimi@2x.png') no-repeat;
+        background-size: contain;
+        margin-top: 8px;
+      }
+    }
+
+    .outLogin {
+      i {
+        width: 18px;
+        height: 18px;
+        background: url('@/assets/icons/btn_close@2x.png') no-repeat 100% 100%;
+        background-size: contain;
+        margin-top: 8px;
+      }
+    }
+  }
+
+  .rightStatus {
+    height: 100%;
+    line-height: 60px;
+    display: flex;
+    align-items: center;
+    float: left;
+  }
+
+  .avatar-wrapper {
+    margin-top: 14px;
+    margin-left: 18px;
+    position: relative;
+    float: right;
+    width: 120px;
+    text-align: left;
+
+    .el-icon-caret-bottom {
+      cursor: pointer;
+      position: absolute;
+      right: -20px;
+      top: 25px;
+      font-size: 12px;
+    }
+
+    .el-button--primary {
+      background: rgba(255, 255, 255, 0.52);
+      border-radius: 4px;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      position: relative;
+      width: 120px;
+      padding-left: 12px;
+      text-align: left;
+      border: 0 none;
+      height: 32px;
+      line-height: 32px;
+    }
+  }
+
+  .businessBtn {
+    height: 22px;
+    line-height: 20px;
+    background: #fd3333;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 0 6px;
+    color: #fff;
+  }
+
+  .closing {
+    background: #6a6a6a;
+  }
+
+  .navicon {
+    i {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      vertical-align: sub;
+      margin: 0 4px 0 0;
+    }
+  }
+
+  .operatingState {
+    i {
+      background: url('@/assets/icons/time.png') no-repeat;
+      background-size: contain;
+    }
+  }
+
+  .mesCenter {
+    i {
+      background: url('@/assets/icons/msg.png') no-repeat;
+      background-size: contain;
+    }
+  }
+}
+
+.app-main {
+  height: calc(100% - 64px);
+  overflow-y: auto;
+}
+

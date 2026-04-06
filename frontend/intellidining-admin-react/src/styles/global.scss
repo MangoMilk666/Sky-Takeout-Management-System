@@ -1,0 +1,29 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #fff7ed;
+  color: #1f2937;
+}
+
+a {
+  color: #ff7a00;
+}
+
+a:hover {
+  color: #ff6a00;
+}
+
+#nprogress .bar {
+  background: #ff7a00 !important;
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 10px #ff7a00,
+    0 0 5px #ff7a00 !important;
+}
