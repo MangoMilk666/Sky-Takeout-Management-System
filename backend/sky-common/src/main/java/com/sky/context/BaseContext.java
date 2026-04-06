@@ -2,7 +2,7 @@ package com.sky.context;
 
 /**
  * 上下文工具类
- * 通过Thread的局部变量ThreadLocal,在同一个线程内传递当前用户的ID值
+ * 通过ThreadLocal类对象,在同一个线程内传递当前用户的ID值
  */
 public class BaseContext {
 

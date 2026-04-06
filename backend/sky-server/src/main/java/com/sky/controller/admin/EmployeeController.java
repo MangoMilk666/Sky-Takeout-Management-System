@@ -51,7 +51,7 @@ public class EmployeeController {
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
         String token = JwtUtil.createJWT(
-                // 配置属性类传入配置参数
+                // 配置属性类传入配置参数：密钥和有效期
                 jwtProperties.getAdminSecretKey(),
                 jwtProperties.getAdminTtl(),
                 claims);

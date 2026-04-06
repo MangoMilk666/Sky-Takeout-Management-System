@@ -25,7 +25,6 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
     /**
      * 校验jwt
-     *
      * @param request
      * @param response
      * @param handler
@@ -57,5 +56,12 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             response.setStatus(401);
             return false;
         }
+    }
+
+    // 请求处理完后，无论成功或失败，都会回调此方法
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        // 清理 ThreadLocal，防止内存泄漏和脏数据
+        BaseContext.removeCurrentId();
     }
 }

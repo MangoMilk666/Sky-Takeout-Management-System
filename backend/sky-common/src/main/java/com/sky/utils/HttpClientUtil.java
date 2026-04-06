@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class HttpClientUtil {
     // 超时配置
-    static final  int TIMEOUT_MSEC = 5 * 1000;
+    static final int TIMEOUT_MSEC = 5 * 1000;
 
     /**
      * 发送GET方式请求
@@ -35,7 +35,7 @@ public class HttpClientUtil {
      * @return
      */
     public static String doGet(String url,Map<String,String> paramMap){
-        // 创建Httpclient对象
+        // 创建Httpclient对象，CloseableHttpClient实现HttpClient接口
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
         String result = "";
@@ -50,20 +50,22 @@ public class HttpClientUtil {
             }
             URI uri = builder.build();
 
-            //创建GET请求
+            //创建GET请求对象，传入请求的接口路径
             HttpGet httpGet = new HttpGet(uri);
 
-            //发送请求
+            //发送请求，接收响应结果
             response = httpClient.execute(httpGet);
 
-            //判断响应状态
+            //判断响应状态码
             if(response.getStatusLine().getStatusCode() == 200){
+                // 解析响应回来的响应体
                 result = EntityUtils.toString(response.getEntity(),"UTF-8");
             }
-        }catch (Exception e){
+        } catch (Exception e){
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
+                // 关闭资源
                 response.close();
                 httpClient.close();
             } catch (IOException e) {
