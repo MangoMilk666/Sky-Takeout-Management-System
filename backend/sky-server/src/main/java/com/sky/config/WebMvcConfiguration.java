@@ -130,17 +130,5 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         converters.add(0,converter);
     }
 
-    /**
-     * 用于联调测试
-     * @param registry
-     */
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // 允许你的 React 访问
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
-    }
 
 }
