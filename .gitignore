@@ -21,7 +21,10 @@ node_modules/
 *.war
 *.ear
 .env
-
+*/docker-compose.yml
+# --- Maven / Java ---
+.mtj.tmp/
+*.rar
 
 # dirs
 /Users/henrysang/Documents/Sky-Takeout/docs/web-prototype/
@@ -30,3 +33,33 @@ node_modules/
 /Users/henrysang/Documents/Sky-Takeout/test/
 # 忽略包含本地开发明文数据的配置文件
 */application-dev.yml
+
+
+
+# ====== IDE ========
+.project
+.settings/
+.classpath
+
+# --- Sensitive Data (CRITICAL) ---
+# 忽略任何包含密码的配置文件备份
+application-dev.yml.example
+*.bak
+*.old
+*.temp
+
+# --- Logs ---
+logs/
+
+
+# 2. 包含敏感信息的数据文件
+backend/sky-server/src/main/resources/application-dev.yml
+backend/sky-server/src/main/resources/application-prod.yml
+
+# 3. 本地测试产生的临时文件
+.env.local
+.env.production.local
+
+# 4. 微信支付密钥文件 (如有)
+**/apiclient_cert.p12
+**/apiclient_key.pem

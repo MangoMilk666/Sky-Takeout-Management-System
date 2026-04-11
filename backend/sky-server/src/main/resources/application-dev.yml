@@ -14,7 +14,7 @@ sky:
   jwt:
     # ==========管理端========
     # 设置jwt签名加密时使用的秘钥
-    admin-secret-key: itcast
+    admin-secret-key: henry_sang_admin_secret_key
     # 设置jwt过期时间
     admin-ttl: 7200000
     # 设置前端传递过来的令牌名称
@@ -22,7 +22,7 @@ sky:
 
     # ==========用户端========
     # 设置jwt签名加密时使用的秘钥
-    user-secret-key: hsang
+    user-secret-key: henry_sang_user_secret_key
     # 设置jwt过期时间
     user-ttl: 7200000
     # 设置前端传递过来的令牌名称
