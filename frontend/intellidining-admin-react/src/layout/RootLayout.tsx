@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useNavigation } from 'react-router-dom'
 import NProgress from 'nprogress'
 import { getShopStatus, setShopStatus } from '@/api/shop'
 import { ElButton } from '@/components/legacy-vue/ElButton'
 import { ElDialog } from '@/components/legacy-vue/ElDialog'
+import { PasswordDialog } from '@/components/password/PasswordDialog'
 import { logout } from '@/lib/auth/auth'
 import { getUsername } from '@/lib/auth/cookies'
 import { isRequestCanceled } from '@/lib/http/isCanceled'
@@ -40,6 +41,9 @@ export function RootLayout() {
   const [shopDialogOpen, setShopDialogOpen] = useState(false)
   const [shopNextStatus, setShopNextStatus] = useState<0 | 1>(1)
   const [shopSaving, setShopSaving] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [pwdDialogOpen, setPwdDialogOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement | null>(null)
 
   const selectedKey = useMemo(() => getMenuSelectedKey(location.pathname), [location.pathname])
   const username = getUsername() || 'admin'
@@ -68,6 +72,20 @@ export function RootLayout() {
       }
     })()
   }, [])
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!userMenuOpen) return
+      const el = userMenuRef.current
+      if (!el) return
+      const target = e.target as Node | null
+      if (target && el.contains(target)) return
+      setUserMenuOpen(false)
+    }
+
+    document.addEventListener('click', onDocClick)
+    return () => document.removeEventListener('click', onDocClick)
+  }, [userMenuOpen])
 
   const wrapperClass = useMemo(() => {
     const base = ['app-wrapper']
@@ -159,18 +177,49 @@ export function RootLayout() {
               </span>
             </div>
             <div className="avatar-wrapper">
-              <div>
+              <div
+                ref={userMenuRef}
+                className={userMenuOpen ? 'userInfo' : ''}
+                onMouseEnter={() => setUserMenuOpen(true)}
+                onMouseLeave={() => setUserMenuOpen(false)}
+              >
                 <button
                   type="button"
-                  className="el-button el-button--primary"
-                  onClick={async () => {
-                    await logout()
-                    navigate('/login', { replace: true })
-                  }}
+                  className={[
+                    'el-button',
+                    'el-button--primary',
+                    userMenuOpen ? 'active' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onClick={() => setUserMenuOpen((v) => !v)}
                 >
                   {username}
                   <i className="el-icon-arrow-down" />
                 </button>
+                {userMenuOpen ? (
+                  <div className="userList">
+                    <p
+                      className="amendPwdIcon"
+                      onClick={() => {
+                        setPwdDialogOpen(true)
+                        setUserMenuOpen(false)
+                      }}
+                    >
+                      修改密码<i />
+                    </p>
+                    <p
+                      className="outLogin"
+                      onClick={async () => {
+                        setUserMenuOpen(false)
+                        await logout()
+                        navigate('/login', { replace: true })
+                      }}
+                    >
+                      退出登录<i />
+                    </p>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -275,6 +324,13 @@ export function RootLayout() {
           </label>
         </div>
       </ElDialog>
+
+      <PasswordDialog
+        open={pwdDialogOpen}
+        onClose={() => {
+          setPwdDialogOpen(false)
+        }}
+      />
     </div>
   )
 }

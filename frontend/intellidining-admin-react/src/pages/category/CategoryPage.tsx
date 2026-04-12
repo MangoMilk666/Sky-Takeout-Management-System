@@ -199,9 +199,17 @@ export function CategoryPage() {
           </ElButton>
         </div>
 
-        <div className="el-table tableBox el-table--fit el-table--striped el-table--enable-row-hover">
+        <div className="el-table tableBox el-table--fit el-table--striped el-table--enable-row-hover category-table">
           <div className="el-table__header-wrapper">
             <table className="el-table__header">
+              <colgroup>
+                <col style={{ width: '24%' }} />
+                <col style={{ width: '14%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '22%' }} />
+                <col style={{ width: 180 }} />
+              </colgroup>
               <thead>
                 <tr>
                   <th className="el-table__cell">
@@ -210,16 +218,16 @@ export function CategoryPage() {
                   <th className="el-table__cell">
                     <div className="cell">分类类型</div>
                   </th>
-                  <th className="el-table__cell">
+                  <th className="el-table__cell is-center">
                     <div className="cell">排序</div>
                   </th>
-                  <th className="el-table__cell">
+                  <th className="el-table__cell is-center">
                     <div className="cell">状态</div>
                   </th>
                   <th className="el-table__cell">
                     <div className="cell">操作时间</div>
                   </th>
-                  <th className="el-table__cell is-center" style={{ width: 200 }}>
+                  <th className="el-table__cell is-center" style={{ width: 180 }}>
                     <div className="cell">操作</div>
                   </th>
                 </tr>
@@ -229,6 +237,14 @@ export function CategoryPage() {
 
           <div className="el-table__body-wrapper">
             <table className="el-table__body">
+              <colgroup>
+                <col style={{ width: '24%' }} />
+                <col style={{ width: '14%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '22%' }} />
+                <col style={{ width: 180 }} />
+              </colgroup>
               <tbody>
                 {rows.length ? (
                   rows.map((row) => {
@@ -237,15 +253,17 @@ export function CategoryPage() {
                     return (
                       <tr key={row.id} className="el-table__row">
                         <td className="el-table__cell">
-                          <div className="cell">{row.name}</div>
+                          <div className="cell" title={row.name}>
+                            {row.name}
+                          </div>
                         </td>
                         <td className="el-table__cell">
                           <div className="cell">{String(row.type) === '1' ? '菜品分类' : '套餐分类'}</div>
                         </td>
-                        <td className="el-table__cell">
+                        <td className="el-table__cell is-center">
                           <div className="cell">{row.sort}</div>
                         </td>
-                        <td className="el-table__cell">
+                        <td className="el-table__cell is-center">
                           <div className="cell">
                             <div className={`tableColumn-status ${disabled ? 'stop-use' : ''}`}>
                               {disabled ? '禁用' : '启用'}
@@ -253,7 +271,9 @@ export function CategoryPage() {
                           </div>
                         </td>
                         <td className="el-table__cell">
-                          <div className="cell">{row.updateTime}</div>
+                          <div className="cell" title={row.updateTime}>
+                            {row.updateTime}
+                          </div>
                         </td>
                         <td className="el-table__cell is-center">
                           <div className="cell">
