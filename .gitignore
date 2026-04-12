@@ -21,7 +21,7 @@ node_modules/
 *.war
 *.ear
 .env
-*/docker-compose.yml
+docker-compose.yml
 # --- Maven / Java ---
 .mtj.tmp/
 *.rar
