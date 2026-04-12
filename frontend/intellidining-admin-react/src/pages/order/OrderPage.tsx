@@ -47,7 +47,7 @@ function getOrderType(row: OrderRow) {
 }
 
 export function OrderPage() {
-  usePageTitle('IntelliDining - 订单管理')
+  usePageTitle('smart-dining智能点餐系统 - 订单管理')
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeStatus, setActiveStatus] = useState<number>(() => {
     const raw = searchParams.get('status')

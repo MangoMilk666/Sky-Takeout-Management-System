@@ -18,7 +18,7 @@ type CategoryRow = {
 }
 
 export function CategoryPage() {
-  usePageTitle('IntelliDining - 分类管理')
+  usePageTitle('smart-dining智能点餐系统 - 分类管理')
   const [name, setName] = useState('')
   const [categoryType, setCategoryType] = useState<number | undefined>(undefined)
   const [isSearch, setIsSearch] = useState(false)

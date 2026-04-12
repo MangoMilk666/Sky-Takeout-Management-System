@@ -17,7 +17,7 @@ function splitCsv(value: any) {
 }
 
 export function StatisticsPage() {
-  usePageTitle('IntelliDining - 数据统计')
+  usePageTitle('smart-dining智能点餐系统 - 数据统计')
   const [rangeType, setRangeType] = useState<number>(2)
   const [turnover, setTurnover] = useState<any>(null)
   const [users, setUsers] = useState<any>(null)

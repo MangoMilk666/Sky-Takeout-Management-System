@@ -18,7 +18,7 @@ type SetmealRow = {
 }
 
 export function SetmealPage() {
-  usePageTitle('IntelliDining - 套餐管理')
+  usePageTitle('smart-dining智能点餐系统 - 套餐管理')
   const navigate = useNavigate()
 
   const [keyword, setKeyword] = useState('')

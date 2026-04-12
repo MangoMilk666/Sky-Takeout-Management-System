@@ -17,7 +17,7 @@ type DishRow = {
 }
 
 export function DishPage() {
-  usePageTitle('IntelliDining - 菜品管理')
+  usePageTitle('smart-dining智能点餐系统 - 菜品管理')
   const navigate = useNavigate()
 
   const [keyword, setKeyword] = useState('')

@@ -17,7 +17,7 @@ type EmployeeRow = {
 }
 
 export function EmployeePage() {
-  usePageTitle('IntelliDining - 员工管理')
+  usePageTitle('smart-dining智能点餐系统 - 员工管理')
   const navigate = useNavigate()
   const [keyword, setKeyword] = useState('')
   const [isSearch, setIsSearch] = useState(false)

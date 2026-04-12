@@ -22,7 +22,7 @@ export function DishAddPage() {
   const id = searchParams.get('id') || ''
   const actionType = id ? 'edit' : 'add'
   const title = actionType === 'add' ? '添加菜品' : '修改菜品'
-  usePageTitle(`IntelliDining - ${title}`)
+  usePageTitle(`smart-dining智能点餐系统 - ${title}`)
 
   const [form] = Form.useForm<DishForm>()
   const [loading, setLoading] = useState(false)

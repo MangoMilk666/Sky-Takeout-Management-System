@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { loginWithPassword } from '@/lib/auth/auth'
+import { usePageTitle } from '@/lib/ui/usePageTitle'
 import loginBanner from '@/assets/login/login-l.png'
-import logo from '@/assets/login/icon_logo.png'
+import logo from '@/assets/smart-dining-logo.png'
 import './login.scss'
 
 export function LoginPage() {
+  usePageTitle('smart-dining智能点餐系统 - 登录')
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
@@ -53,7 +55,11 @@ export function LoginPage() {
             }}
           >
             <div className="login-form-title">
-              <img src={logo} style={{ width: 149, height: 38 }} alt="" />
+              <img
+                src={logo}
+                style={{ height: 160, width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }}
+                alt=""
+              />
             </div>
 
             <div className={`el-form-item ${usernameError ? 'is-error' : ''}`}>

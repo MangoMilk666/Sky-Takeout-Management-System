@@ -8,8 +8,7 @@ import { logout } from '@/lib/auth/auth'
 import { getUsername } from '@/lib/auth/cookies'
 import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { message } from '@/lib/ui/message'
-import logo from '@/assets/login/logo.png'
-import miniLogo from '@/assets/login/mini-logo.png'
+import logo from '@/assets/smart-dining-logo.png'
 
 type MenuItem = {
   to: string
@@ -84,11 +83,15 @@ export function RootLayout() {
           <div className="logo">
             {!sidebarOpened ? (
               <div className="sidebar-logo-mini">
-                <img src={miniLogo} alt="" />
+                <img src={logo} style={{ width: 36, height: 36, objectFit: 'contain' }} alt="" />
               </div>
             ) : (
               <div className="sidebar-logo">
-                <img src={logo} style={{ width: 120, height: 31 }} alt="" />
+                <img
+                  src={logo}
+                  style={{ height: 40, width: 'auto', maxWidth: 175, objectFit: 'contain' }}
+                  alt=""
+                />
               </div>
             )}
           </div>

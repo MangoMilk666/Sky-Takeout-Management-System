@@ -11,7 +11,7 @@ import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 
 export function DashboardPage() {
-  usePageTitle('IntelliDining - 工作台')
+  usePageTitle('smart-dining智能点餐系统 - 工作台')
   const [business, setBusiness] = useState<any>(null)
   const [orders, setOrders] = useState<any>(null)
   const [dishes, setDishes] = useState<any>(null)
@@ -141,7 +141,7 @@ export function DashboardPage() {
 
       <Card>
         <Typography.Text type="secondary">
-          IntelliDining 管理端已完成核心页面迁移，后续可继续对齐原项目的视觉细节与表格字段。
+          smart-dining智能点餐系统 管理端已完成核心页面迁移，后续可继续对齐原项目的视觉细节与表格字段。
         </Typography.Text>
       </Card>
     </div>
