@@ -8,6 +8,8 @@ export function ElDialog({
   children,
   footer,
   showClose = true,
+  wrapperClassName,
+  dialogClassName,
 }: {
   open: boolean
   title: string
@@ -16,14 +18,20 @@ export function ElDialog({
   children: ReactNode
   footer?: ReactNode
   showClose?: boolean
+  wrapperClassName?: string
+  dialogClassName?: string
 }) {
   if (!open) return null
 
   return (
-    <div className="el-dialog__wrapper" role="dialog" aria-modal="true">
+    <div
+      className={['el-dialog__wrapper', wrapperClassName].filter(Boolean).join(' ')}
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="v-modal" onClick={onClose} />
       <div
-        className="el-dialog"
+        className={['el-dialog', dialogClassName].filter(Boolean).join(' ')}
         style={{ width }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -41,4 +49,3 @@ export function ElDialog({
     </div>
   )
 }
-

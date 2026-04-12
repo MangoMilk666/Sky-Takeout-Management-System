@@ -1,4 +1,4 @@
-import { Button, Card, Input, Modal, Select, Space, Table, Tag, message } from 'antd'
+import { Button, Card, Input, Modal, Select, Space, Table, message } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getCategoryList } from '@/api/dish'
@@ -106,7 +106,7 @@ export function SetmealPage() {
         dataIndex: 'status',
         render: (s: SetmealRow['status']) => {
           const stopped = String(s) === '0'
-          return <Tag color={stopped ? 'default' : 'green'}>{stopped ? '停售' : '启售'}</Tag>
+          return <div className={`tableColumn-status ${stopped ? 'stop-use' : ''}`}>{stopped ? '停售' : '启售'}</div>
         },
       },
       { title: '最后操作时间', dataIndex: 'updateTime' },

@@ -50,3 +50,61 @@ body {
     text-overflow: ellipsis;
   }
 }
+
+.shop-status-dialog {
+  min-width: auto !important;
+
+  .el-dialog__header {
+    height: 61px;
+    line-height: 60px;
+    background: #fbfbfa;
+    padding: 0 30px;
+    font-size: 16px;
+    color: #333;
+    border: 0 none;
+  }
+
+  .el-dialog__body {
+    padding: 10px 30px 30px;
+
+    .el-radio,
+    .el-radio__input {
+      white-space: normal;
+    }
+
+    .el-radio__label {
+      padding-left: 5px;
+      color: #333;
+      font-weight: 700;
+
+      span {
+        display: block;
+        line-height: 20px;
+        padding-top: 12px;
+        color: #666;
+        font-weight: normal;
+      }
+    }
+
+    .el-radio__input.is-checked .el-radio__inner::after {
+      background: #333;
+    }
+
+    .el-radio-group {
+      & > .is-checked {
+        border: 1px solid #ffc200;
+      }
+    }
+
+    .el-radio {
+      width: 100%;
+      display: block;
+      background: #fbfbfa;
+      border: 1px solid #e5e4e4;
+      border-radius: 4px;
+      padding: 14px 22px;
+      margin-top: 20px;
+      margin-right: 0;
+    }
+  }
+}

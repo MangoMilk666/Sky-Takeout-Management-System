@@ -144,14 +144,12 @@ export function RootLayout() {
                 role="button"
                 tabIndex={0}
                 onClick={() => {
-                  const next = shopStatus === 0 ? 1 : 0
-                  setShopNextStatus(next)
+                  setShopNextStatus(shopStatus === 0 ? 0 : 1)
                   setShopDialogOpen(true)
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
-                    const next = shopStatus === 0 ? 1 : 0
-                    setShopNextStatus(next)
+                    setShopNextStatus(shopStatus === 0 ? 0 : 1)
                     setShopDialogOpen(true)
                   }
                 }}
@@ -186,7 +184,9 @@ export function RootLayout() {
       <ElDialog
         open={shopDialogOpen}
         title="营业状态设置"
-        width="30%"
+        width="25%"
+        showClose={false}
+        dialogClassName="shop-status-dialog"
         onClose={() => {
           if (shopSaving) return
           setShopDialogOpen(false)
@@ -231,39 +231,48 @@ export function RootLayout() {
           </span>
         }
       >
-        <div className="el-form demo-form-inline">
-          <div className="el-form-item">
-            <label className="el-form-item__label" style={{ width: 120 }}>
-              当前状态：
-            </label>
-            <div className="el-form-item__content" style={{ marginLeft: 120, lineHeight: '36px' }}>
-              {shopStatus === 0 ? '打烊中' : shopStatus === 1 ? '营业中' : '-'}
-            </div>
-          </div>
+        <div className="el-radio-group" role="radiogroup" aria-label="营业状态">
+          <label
+            className={['el-radio', shopNextStatus === 1 ? 'is-checked' : ''].filter(Boolean).join(' ')}
+            onClick={() => {
+              if (shopSaving) return
+              setShopNextStatus(1)
+            }}
+          >
+            <span
+              className={['el-radio__input', shopNextStatus === 1 ? 'is-checked' : '']
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <span className="el-radio__inner" />
+              <input className="el-radio__original" type="radio" checked={shopNextStatus === 1} readOnly />
+            </span>
+            <span className="el-radio__label">
+              营业中
+              <span>当前餐厅处于营业状态，自动接收任何订单，可点击打烊进入店铺打烊状态。</span>
+            </span>
+          </label>
 
-          <div className="el-form-item">
-            <label className="el-form-item__label" style={{ width: 120 }}>
-              切换为：
-            </label>
-            <div className="el-form-item__content" style={{ marginLeft: 120 }}>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <ElButton
-                  size="medium"
-                  className={shopNextStatus === 1 ? 'continue' : ''}
-                  onClick={() => setShopNextStatus(1)}
-                >
-                  营业中
-                </ElButton>
-                <ElButton
-                  size="medium"
-                  className={shopNextStatus === 0 ? 'continue' : ''}
-                  onClick={() => setShopNextStatus(0)}
-                >
-                  打烊中
-                </ElButton>
-              </div>
-            </div>
-          </div>
+          <label
+            className={['el-radio', shopNextStatus === 0 ? 'is-checked' : ''].filter(Boolean).join(' ')}
+            onClick={() => {
+              if (shopSaving) return
+              setShopNextStatus(0)
+            }}
+          >
+            <span
+              className={['el-radio__input', shopNextStatus === 0 ? 'is-checked' : '']
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <span className="el-radio__inner" />
+              <input className="el-radio__original" type="radio" checked={shopNextStatus === 0} readOnly />
+            </span>
+            <span className="el-radio__label">
+              打烊中
+              <span>当前餐厅处于打烊状态，仅接受营业时间内的预定订单，可点击营业中手动恢复营业状态。</span>
+            </span>
+          </label>
         </div>
       </ElDialog>
     </div>
