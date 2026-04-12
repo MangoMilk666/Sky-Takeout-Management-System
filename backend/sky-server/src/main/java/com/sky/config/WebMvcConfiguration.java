@@ -108,11 +108,11 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
 
-        // =============访问本地存储图片=============
+        // =============访问服务器端docker容器内的图片路径=============
         // 这里的路径要和Service 里的 accessUrl 匹配
         // 访问地址设置为 /admin/common/upload/xxx.jpg
         registry.addResourceHandler("/admin/common/upload/**")
-                .addResourceLocations("file:/Users/henrysang/Documents/Sky-Takeout/data/img_data/");
+                .addResourceLocations("file:/app/data/img_data/");
     }
 
     /**
