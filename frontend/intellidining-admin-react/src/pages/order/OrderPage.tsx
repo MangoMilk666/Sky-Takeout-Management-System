@@ -2,15 +2,11 @@ import {
   Button,
   Card,
   DatePicker,
-  Form,
   Input,
-  Modal,
-  Select,
   Space,
   Table,
   Tabs,
   Tag,
-  Typography,
   message,
 } from 'antd'
 import type { Dayjs } from 'dayjs'
@@ -21,10 +17,11 @@ import {
   deliveryOrder,
   getOrderDetailPage,
   orderAccept,
-  orderCancel,
-  orderReject,
   queryOrderDetailById,
 } from '@/api/order'
+import { OrderCancelDialog } from '@/components/order/OrderCancelDialog'
+import { OrderDetailDialog } from '@/components/order/OrderDetailDialog'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 
 type OrderRow = {
@@ -72,12 +69,11 @@ export function OrderPage() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [detail, setDetail] = useState<any>(null)
   const [detailRow, setDetailRow] = useState<OrderRow | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
 
   const [cancelOpen, setCancelOpen] = useState(false)
-  const [cancelTitle, setCancelTitle] = useState<'取消' | '拒绝'>('取消')
-  const [cancelOrderRow, setCancelOrderRow] = useState<OrderRow | null>(null)
-  const [cancelReason, setCancelReason] = useState<string>('')
-  const [cancelRemark, setCancelRemark] = useState<string>('')
+  const [cancelMode, setCancelMode] = useState<'取消' | '拒绝'>('取消')
+  const [cancelOrderId, setCancelOrderId] = useState<string>('')
 
   const fetchList = async (opts?: { resetPage?: boolean; markSearch?: boolean; status?: number }) => {
     if (opts?.resetPage) setPage(1)
@@ -104,6 +100,7 @@ export function OrderPage() {
         message.error(res.data?.msg || '查询失败')
       }
     } catch (e: any) {
+      if (isRequestCanceled(e)) return
       message.error(`请求出错了：${e?.message || '未知错误'}`)
     } finally {
       setLoading(false)
@@ -125,6 +122,7 @@ export function OrderPage() {
     setDetailOpen(true)
     setDetailRow({ id: orderId, number: '', status: 0 })
     setDetail(null)
+    setDetailLoading(true)
     try {
       const res = await queryOrderDetailById({ orderId })
       if (String(res.data?.code) === '1') {
@@ -146,7 +144,10 @@ export function OrderPage() {
       }
       message.error(res.data?.msg || '查询失败')
     } catch (e: any) {
+      if (isRequestCanceled(e)) return
       message.error(`请求出错了：${e?.message || '未知错误'}`)
+    } finally {
+      setDetailLoading(false)
     }
   }
 
@@ -158,6 +159,7 @@ export function OrderPage() {
     setDetailOpen(true)
     setDetailRow(row)
     setDetail(null)
+    setDetailLoading(true)
     try {
       const res = await queryOrderDetailById({ orderId: row.id })
       if (String(res.data?.code) === '1') {
@@ -166,7 +168,10 @@ export function OrderPage() {
       }
       message.error(res.data?.msg || '查询失败')
     } catch (e: any) {
+      if (isRequestCanceled(e)) return
       message.error(`请求出错了：${e?.message || '未知错误'}`)
+    } finally {
+      setDetailLoading(false)
     }
   }
 
@@ -190,38 +195,16 @@ export function OrderPage() {
   }, [searchParams])
 
   const openCancel = (row: OrderRow, mode: '取消' | '拒绝') => {
-    setCancelTitle(mode)
-    setCancelOrderRow(row)
-    setCancelReason('')
-    setCancelRemark('')
+    setCancelMode(mode)
+    setCancelOrderId(row.id)
     setCancelOpen(true)
   }
 
-  const confirmCancel = async () => {
-    if (!cancelOrderRow) return
-    if (!cancelReason) {
-      message.error(`请选择${cancelTitle}原因`)
-      return
-    }
-    if (cancelReason === '自定义原因' && !cancelRemark) {
-      message.error(`请输入${cancelTitle}原因`)
-      return
-    }
-    const reasonValue = cancelReason === '自定义原因' ? cancelRemark : cancelReason
-    const api = cancelTitle === '取消' ? orderCancel : orderReject
-    const payload: any =
-      cancelTitle === '取消'
-        ? { id: cancelOrderRow.id, cancelReason: reasonValue }
-        : { id: cancelOrderRow.id, rejectionReason: reasonValue }
-
-    const res = await api(payload)
-    if (String(res.data?.code) === '1') {
-      message.success('操作成功')
-      setCancelOpen(false)
-      await fetchList()
-      return
-    }
-    message.error(res.data?.msg || '操作失败')
+  const closeDetail = () => {
+    setDetailOpen(false)
+    const next = new URLSearchParams(searchParams)
+    next.delete('orderId')
+    setSearchParams(next, { replace: true })
   }
 
   const columns = useMemo(
@@ -397,70 +380,87 @@ export function OrderPage() {
         locale={{ emptyText: isSearch ? '未搜索到相关订单' : '暂无数据' }}
       />
 
-      <Modal
+      <OrderDetailDialog
         open={detailOpen}
-        title="订单详情"
-        onCancel={() => {
-          setDetailOpen(false)
-          const next = new URLSearchParams(searchParams)
-          next.delete('orderId')
-          setSearchParams(next, { replace: true })
+        loading={detailLoading}
+        detail={detail}
+        row={detailRow}
+        onClose={closeDetail}
+        onAccept={async () => {
+          if (!detailRow?.id) return
+          try {
+            const res = await orderAccept({ id: detailRow.id })
+            if (String(res.data?.code) === '1') {
+              message.success('操作成功')
+              await fetchList()
+              await openDetailById(detailRow.id)
+              return
+            }
+            message.error(res.data?.msg || '操作失败')
+          } catch (e: any) {
+            if (isRequestCanceled(e)) return
+            message.error(e?.message || '操作失败')
+          }
         }}
-        footer={null}
-        width={720}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Typography.Text>订单号：{detailRow?.number}</Typography.Text>
-          <Typography.Text>状态：{detailRow ? getOrderType(detailRow) : ''}</Typography.Text>
-          <Typography.Text>用户：{detailRow?.consignee}</Typography.Text>
-          <Typography.Text>手机号：{detailRow?.phone}</Typography.Text>
-          <Typography.Text>地址：{detailRow?.address}</Typography.Text>
-          <Typography.Text>下单时间：{detailRow?.orderTime}</Typography.Text>
-          <pre
-            style={{
-              marginTop: 8,
-              padding: 12,
-              background: '#0b1020',
-              color: '#cbd5e1',
-              borderRadius: 8,
-              maxHeight: 320,
-              overflow: 'auto',
-            }}
-          >
-            {detail ? JSON.stringify(detail, null, 2) : '加载中...'}
-          </pre>
-        </div>
-      </Modal>
+        onReject={() => {
+          if (!detailRow?.id) return
+          setCancelMode('拒绝')
+          setCancelOrderId(detailRow.id)
+          setCancelOpen(true)
+        }}
+        onCancel={() => {
+          if (!detailRow?.id) return
+          setCancelMode('取消')
+          setCancelOrderId(detailRow.id)
+          setCancelOpen(true)
+        }}
+        onDelivery={async () => {
+          if (!detailRow?.id) return
+          try {
+            const res = await deliveryOrder({ id: detailRow.id })
+            if (String(res.data?.code) === '1') {
+              message.success('操作成功')
+              await fetchList()
+              await openDetailById(detailRow.id)
+              return
+            }
+            message.error(res.data?.msg || '操作失败')
+          } catch (e: any) {
+            if (isRequestCanceled(e)) return
+            message.error(e?.message || '操作失败')
+          }
+        }}
+        onComplete={async () => {
+          if (!detailRow?.id) return
+          try {
+            const res = await completeOrder({ id: detailRow.id })
+            if (String(res.data?.code) === '1') {
+              message.success('操作成功')
+              await fetchList()
+              await openDetailById(detailRow.id)
+              return
+            }
+            message.error(res.data?.msg || '操作失败')
+          } catch (e: any) {
+            if (isRequestCanceled(e)) return
+            message.error(e?.message || '操作失败')
+          }
+        }}
+      />
 
-      <Modal
+      <OrderCancelDialog
         open={cancelOpen}
-        title={`${cancelTitle}订单`}
-        onCancel={() => setCancelOpen(false)}
-        onOk={confirmCancel}
-        okText="确定"
-        cancelText="取消"
-      >
-        <Form layout="vertical">
-          <Form.Item label={`${cancelTitle}原因`} required>
-            <Select
-              value={cancelReason || undefined}
-              placeholder={`请选择${cancelTitle}原因`}
-              options={[
-                { value: '订单信息有误', label: '订单信息有误' },
-                { value: '库存不足', label: '库存不足' },
-                { value: '商家忙碌', label: '商家忙碌' },
-                { value: '自定义原因', label: '自定义原因' },
-              ]}
-              onChange={(v) => setCancelReason(v)}
-            />
-          </Form.Item>
-          {cancelReason === '自定义原因' ? (
-            <Form.Item label="备注" required>
-              <Input.TextArea rows={3} value={cancelRemark} onChange={(e) => setCancelRemark(e.target.value)} />
-            </Form.Item>
-          ) : null}
-        </Form>
-      </Modal>
+        mode={cancelMode}
+        orderId={cancelOrderId}
+        onClose={() => setCancelOpen(false)}
+        onDone={async () => {
+          setCancelOpen(false)
+          await fetchList()
+          if (detailOpen && detailRow?.id) {
+            await openDetailById(detailRow.id)
+          }
+        }}
+      />
     </Card>
   )
 }

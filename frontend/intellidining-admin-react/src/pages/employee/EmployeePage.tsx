@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { enableOrDisableEmployee, getEmployeeList } from '@/api/employee'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { ElButton } from '@/components/legacy-vue/ElButton'
 import { ElInput } from '@/components/legacy-vue/ElInput'
 import { ElPagination } from '@/components/legacy-vue/ElPagination'
@@ -48,6 +49,7 @@ export function EmployeePage() {
         window.alert(res.data?.msg || '查询失败')
       }
     } catch (e: any) {
+      if (isRequestCanceled(e)) return
       window.alert(`请求出错了：${e?.message || '未知错误'}`)
     } finally {
       setLoading(false)

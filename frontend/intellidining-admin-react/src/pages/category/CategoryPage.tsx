@@ -5,6 +5,7 @@ import { ElDialog } from '@/components/legacy-vue/ElDialog'
 import { ElInput } from '@/components/legacy-vue/ElInput'
 import { ElPagination } from '@/components/legacy-vue/ElPagination'
 import { ElSelect } from '@/components/legacy-vue/ElSelect'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 
 type CategoryRow = {
@@ -60,6 +61,7 @@ export function CategoryPage() {
         window.alert(res.data?.msg || '查询失败')
       }
     } catch (e: any) {
+      if (isRequestCanceled(e)) return
       window.alert(`请求出错了：${e?.message || '未知错误'}`)
     } finally {
       setLoading(false)

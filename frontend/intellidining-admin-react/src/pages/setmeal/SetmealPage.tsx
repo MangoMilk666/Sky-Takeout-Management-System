@@ -2,6 +2,7 @@ import { Button, Card, Input, Modal, Select, Space, Table, Tag, message } from '
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getCategoryList } from '@/api/dish'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { deleteSetmeal, getSetmealPage, setmealStatusByStatus } from '@/api/setMeal'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 
@@ -58,6 +59,7 @@ export function SetmealPage() {
         message.error(res.data?.msg || '查询失败')
       }
     } catch (e: any) {
+      if (isRequestCanceled(e)) return
       message.error(`请求出错了：${e?.message || '未知错误'}`)
     } finally {
       setLoading(false)

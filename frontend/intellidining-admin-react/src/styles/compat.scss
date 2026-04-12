@@ -11,3 +11,42 @@ body {
 .disabled-text {
   color: #bac0cd !important;
 }
+
+.el-dialog__wrapper {
+  z-index: 2001;
+}
+
+.el-dialog__wrapper .v-modal {
+  z-index: 2000;
+}
+
+.el-dialog__wrapper .el-dialog {
+  z-index: 2001;
+}
+
+.el-table__header,
+.el-table__body,
+.el-table__footer {
+  width: 100%;
+}
+
+.el-table__empty-text {
+  width: 100%;
+}
+
+.order-detail-items-table {
+  .el-table__header-wrapper th {
+    background: #f5f7fa;
+  }
+
+  .el-table__header-wrapper .cell {
+    font-weight: 600;
+    color: #606266;
+  }
+
+  .el-table__body-wrapper .cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

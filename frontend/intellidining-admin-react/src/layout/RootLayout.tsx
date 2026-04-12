@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useNavigation } from 'react-router-dom'
 import NProgress from 'nprogress'
+import { getShopStatus, setShopStatus } from '@/api/shop'
+import { ElButton } from '@/components/legacy-vue/ElButton'
+import { ElDialog } from '@/components/legacy-vue/ElDialog'
 import { logout } from '@/lib/auth/auth'
 import { getUsername } from '@/lib/auth/cookies'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
+import { message } from '@/lib/ui/message'
 import logo from '@/assets/login/logo.png'
 import miniLogo from '@/assets/login/mini-logo.png'
 
@@ -32,6 +37,10 @@ export function RootLayout() {
   const navigate = useNavigate()
   const navigation = useNavigation()
   const [sidebarOpened, setSidebarOpened] = useState(true)
+  const [shopStatus, setShopStatusState] = useState<0 | 1 | null>(null)
+  const [shopDialogOpen, setShopDialogOpen] = useState(false)
+  const [shopNextStatus, setShopNextStatus] = useState<0 | 1>(1)
+  const [shopSaving, setShopSaving] = useState(false)
 
   const selectedKey = useMemo(() => getMenuSelectedKey(location.pathname), [location.pathname])
   const username = getUsername() || 'admin'
@@ -43,6 +52,23 @@ export function RootLayout() {
     }
     NProgress.done()
   }, [navigation.state])
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const res = await getShopStatus()
+        if (String(res.data?.code) === '1') {
+          const v = Number(res.data?.data)
+          setShopStatusState(v === 0 ? 0 : 1)
+          return
+        }
+        message.error(res.data?.msg || '获取营业状态失败')
+      } catch (e: any) {
+        if (isRequestCanceled(e)) return
+        message.error(e?.message || '获取营业状态失败')
+      }
+    })()
+  }, [])
 
   const wrapperClass = useMemo(() => {
     const base = ['app-wrapper']
@@ -105,12 +131,28 @@ export function RootLayout() {
             >
               <i className="iconfont dashboard" />
             </div>
-            <span className="businessBtn">营业中</span>
+            <span className="businessBtn">{shopStatus === 0 ? '打烊中' : shopStatus === 1 ? '营业中' : '加载中'}</span>
           </div>
 
           <div className="right-menu">
             <div className="rightStatus">
-              <span className="navicon operatingState">
+              <span
+                className="navicon operatingState"
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  const next = shopStatus === 0 ? 1 : 0
+                  setShopNextStatus(next)
+                  setShopDialogOpen(true)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    const next = shopStatus === 0 ? 1 : 0
+                    setShopNextStatus(next)
+                    setShopDialogOpen(true)
+                  }
+                }}
+              >
                 <i />
                 营业状态设置
               </span>
@@ -137,6 +179,90 @@ export function RootLayout() {
           <Outlet />
         </section>
       </div>
+
+      <ElDialog
+        open={shopDialogOpen}
+        title="营业状态设置"
+        width="30%"
+        onClose={() => {
+          if (shopSaving) return
+          setShopDialogOpen(false)
+        }}
+        footer={
+          <span className="dialog-footer">
+            <ElButton
+              size="medium"
+              onClick={() => {
+                if (shopSaving) return
+                setShopDialogOpen(false)
+              }}
+            >
+              取 消
+            </ElButton>
+            <ElButton
+              elType="primary"
+              size="medium"
+              className="continue"
+              onClick={async () => {
+                if (shopSaving) return
+                setShopSaving(true)
+                try {
+                  const res = await setShopStatus(shopNextStatus)
+                  if (String(res.data?.code) === '1' || String(res.status) === '200') {
+                    setShopStatusState(shopNextStatus)
+                    message.success('操作成功')
+                    setShopDialogOpen(false)
+                    return
+                  }
+                  message.error(res.data?.msg || '操作失败')
+                } catch (e: any) {
+                  if (isRequestCanceled(e)) return
+                  message.error(e?.message || '操作失败')
+                } finally {
+                  setShopSaving(false)
+                }
+              }}
+            >
+              确 定
+            </ElButton>
+          </span>
+        }
+      >
+        <div className="el-form demo-form-inline">
+          <div className="el-form-item">
+            <label className="el-form-item__label" style={{ width: 120 }}>
+              当前状态：
+            </label>
+            <div className="el-form-item__content" style={{ marginLeft: 120, lineHeight: '36px' }}>
+              {shopStatus === 0 ? '打烊中' : shopStatus === 1 ? '营业中' : '-'}
+            </div>
+          </div>
+
+          <div className="el-form-item">
+            <label className="el-form-item__label" style={{ width: 120 }}>
+              切换为：
+            </label>
+            <div className="el-form-item__content" style={{ marginLeft: 120 }}>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <ElButton
+                  size="medium"
+                  className={shopNextStatus === 1 ? 'continue' : ''}
+                  onClick={() => setShopNextStatus(1)}
+                >
+                  营业中
+                </ElButton>
+                <ElButton
+                  size="medium"
+                  className={shopNextStatus === 0 ? 'continue' : ''}
+                  onClick={() => setShopNextStatus(0)}
+                >
+                  打烊中
+                </ElButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ElDialog>
     </div>
   )
 }

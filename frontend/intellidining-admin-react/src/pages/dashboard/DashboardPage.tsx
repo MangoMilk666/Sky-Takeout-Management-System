@@ -7,6 +7,7 @@ import {
   getOverviewDishes,
   getOverviewSetmeals,
 } from '@/api/workspace'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 
 export function DashboardPage() {
@@ -30,6 +31,7 @@ export function DashboardPage() {
         if (String(d.data?.code) === '1') setDishes(d.data?.data)
         if (String(s.data?.code) === '1') setSetmeals(s.data?.data)
       } catch (e: any) {
+        if (isRequestCanceled(e)) return
         message.error(`请求出错了：${e?.message || '未知错误'}`)
       }
     })()
