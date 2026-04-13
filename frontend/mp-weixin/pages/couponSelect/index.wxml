@@ -1,0 +1,41 @@
+<view class="page">
+  <uni-nav-bar left-icon="back" leftIcon="arrowleft" title="可用优惠券" statusBar="true" fixed="true" color="#ffffff" backgroundColor="#333333" bind:clickLeft="goBack" />
+
+  <view class="content">
+    <view class="tip">下单前可在这里查看你当前可用的优惠券</view>
+
+    <block wx:if="{{loading}}">
+      <view class="loading">加载中...</view>
+    </block>
+
+    <block wx:if="{{!loading && coupons.length === 0}}">
+      <empty />
+    </block>
+
+    <block wx:for="{{coupons}}" wx:for-item="c" wx:key="userCouponId">
+      <view class="card" data-id="{{c.couponId}}" bindtap="handlePick">
+        <view class="card-hd">
+          <text class="name">{{c.name}}</text>
+          <text class="tag">{{c.typeText}}</text>
+        </view>
+        <view class="card-bd">
+          <view class="line">
+            <text class="label">优惠：</text>
+          <text class="value">{{c.discountText}}</text>
+          </view>
+          <view class="line">
+            <text class="label">有效期：</text>
+            <text class="value">{{c.beginTime}} ~ {{c.endTime}}</text>
+          </view>
+        </view>
+        <view class="card-ft">
+          <text class="action">选择</text>
+        </view>
+      </view>
+    </block>
+
+    <view class="footer">
+      <button class="btn" type="default" bindtap="goCenter">去领券中心</button>
+    </view>
+  </view>
+</view>

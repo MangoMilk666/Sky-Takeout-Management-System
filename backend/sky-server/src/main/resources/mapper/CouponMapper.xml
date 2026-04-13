@@ -16,10 +16,17 @@
         select * from coupon order by id desc
     </select>
 
+    <select id="listAvailable" resultType="com.sky.entity.Coupon">
+        select *
+        from coupon
+        where remained_count &gt; 0
+          and now() between begin_time and end_time
+        order by id desc
+    </select>
+
     <update id="decreaseRemainedCount">
         update coupon set remained_count = remained_count - 1, update_time = now()
         where id = #{id} and remained_count &gt; 0
     </update>
 
 </mapper>
-
