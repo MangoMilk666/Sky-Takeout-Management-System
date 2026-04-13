@@ -75,6 +75,8 @@ public class OrderServiceImpl implements OrderService {
         order.setUserId(BaseContext.getCurrentId()); //用户id
         order.setOrderTime(LocalDateTime.now());
         order.setPayStatus(Orders.UN_PAID);
+        order.setOriginalAmount(order.getAmount());
+        order.setDiscountAmount(order.getAmount());
 //        order.setUserName(addressBook.getConsignee()); //用户名，收货人？
         order.setPhone(addressBook.getPhone());
         order.setAddress(addressBook.getDetail()); // 用户地址

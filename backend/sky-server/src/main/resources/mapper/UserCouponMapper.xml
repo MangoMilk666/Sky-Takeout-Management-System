@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.UserCouponMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into user_coupon (user_id, coupon_id, status, used_time, request_id, create_time)
+        values (#{userId}, #{couponId}, #{status}, #{usedTime}, #{requestId}, #{createTime})
+    </insert>
+
+    <select id="getById" resultType="com.sky.entity.UserCoupon">
+        select * from user_coupon where id = #{id}
+    </select>
+
+    <select id="getIdByRequestId" resultType="java.lang.Long">
+        select id from user_coupon where request_id = #{requestId}
+    </select>
+
+    <select id="listByUserId" resultType="com.sky.vo.UserCouponVO">
+        select uc.id as userCouponId, c.id as couponId, c.name, c.discount_type as discountType, c.discount, c.begin_time as beginTime, c.end_time as endTime, uc.status
+        from user_coupon uc
+        left join coupon c on uc.coupon_id = c.id
+        where uc.user_id = #{userId}
+        order by uc.id desc
+    </select>
+
+    <select id="listAvailableByUserId" resultType="com.sky.vo.UserCouponVO">
+        select uc.id as userCouponId, c.id as couponId, c.name, c.discount_type as discountType, c.discount, c.begin_time as beginTime, c.end_time as endTime, uc.status
+        from user_coupon uc
+        left join coupon c on uc.coupon_id = c.id
+        where uc.user_id = #{userId}
+          and uc.status = 0
+          and now() between c.begin_time and c.end_time
+        order by uc.id desc
+    </select>
+
+    <update id="markUsed">
+        update user_coupon
+        set status = 1, used_time = #{usedTime}
+        where id = #{id} and user_id = #{userId} and status = 0
+    </update>
+
+    <update id="revertToUnused">
+        update user_coupon
+        set status = 0, used_time = null
+        where id = #{id} and status = 1
+    </update>
+
+</mapper>

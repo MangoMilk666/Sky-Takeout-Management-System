@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>优惠券模块接口文档</title>
+  <style>
+    body{font-family:ui-sans-serif,system-ui,-apple-system;max-width:1100px;margin:24px auto;padding:0 16px;line-height:1.55}
+    h1,h2{margin:18px 0 10px}
+    table{border-collapse:collapse;width:100%;margin:10px 0 18px}
+    th,td{border:1px solid #ddd;padding:10px;vertical-align:top}
+    code,pre{background:#f6f8fa;padding:2px 6px;border-radius:4px}
+    pre{padding:12px;overflow:auto}
+    .tag{display:inline-block;padding:2px 8px;border:1px solid #999;border-radius:999px;font-size:12px;margin-left:6px}
+  </style>
+</head>
+<body>
+  <h1>优惠券模块接口文档 <span class="tag">v1</span></h1>
+  <p>覆盖：商家发布+Redis预热、用户端Lua抢券+异步落库、下单使用与支付失败回退（幂等）。</p>
+
+  <h2>通用约定</h2>
+  <ul>
+    <li>所有写接口建议携带 <code>requestId</code>（客户端生成 UUID）用于幂等。</li>
+    <li>错误统一返回：<code>{ ok:false, code:"...", message:"..." }</code>。</li>
+  </ul>
+
+  <h2>商家端接口（Admin）</h2>
+  <table>
+    <thead><tr><th>Method</th><th>Path</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>POST</td><td>/api/admin/coupon-templates</td><td>创建优惠券模板（草稿）</td></tr>
+      <tr><td>PUT</td><td>/api/admin/coupon-templates/{id}</td><td>编辑模板</td></tr>
+      <tr><td>POST</td><td>/api/admin/coupon-templates/{id}/publish</td><td>发布模板并触发 Redis 预热</td></tr>
+      <tr><td>POST</td><td>/api/admin/coupon-templates/{id}/offline</td><td>下线模板（用户端不可再领）</td></tr>
+      <tr><td>GET</td><td>/api/admin/coupon-templates/{id}/stats</td><td>统计：发放/核销/回退/异常</td></tr>
+    </tbody>
+  </table>
+
+  <h3>发布接口示例</h3>
+  <pre><code>POST /api/admin/coupon-templates/CT1001/publish
+
+Response
+{
+  "ok": true,
+  "templateId": "CT1001",
+  "warmedUp": true
+}</code></pre>
+
+  <h2>用户端接口（User）</h2>
+  <table>
+    <thead><tr><th>Method</th><th>Path</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>GET</td><td>/api/coupons/available</td><td>可领取优惠券模板列表</td></tr>
+      <tr><td>POST</td><td>/api/coupons/claim</td><td>Lua 抢券：原子校验+扣减+入队异步落库</td></tr>
+      <tr><td>GET</td><td>/api/coupons/mine</td><td>我的优惠券列表（AVAILABLE/LOCKED/USED/EXPIRED）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>抢券接口（Lua）</h3>
+  <pre><code>POST /api/coupons/claim
+{
+  "templateId": "CT1001",
+  "requestId": "0f2b8c1a-7d2e-4a8a-9e6e-..."
+}
+
+Response
+{
+  "ok": true,
+  "code": "OK"
+}
+
+失败示例
+{ "ok": false, "code": "OUT_OF_STOCK", "message": "已抢光" }</code></pre>
+
+  <h2>下单/支付接口（Checkout）</h2>
+  <table>
+    <thead><tr><th>Method</th><th>Path</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>POST</td><td>/api/checkout/coupons/recommend</td><td>按订单金额/范围计算可用券与推荐券</td></tr>
+      <tr><td>POST</td><td>/api/checkout/coupons/lock</td><td>锁券：AVAILABLE -&gt; LOCKED（防并发重复使用）</td></tr>
+      <tr><td>POST</td><td>/api/checkout/coupons/confirm-used</td><td>核销：LOCKED -&gt; USED（支付成功回调/业务确认）</td></tr>
+      <tr><td>POST</td><td>/api/checkout/coupons/release-lock</td><td>回退：LOCKED -&gt; AVAILABLE（支付失败/取消/超时）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>锁券接口示例</h3>
+  <pre><code>POST /api/checkout/coupons/lock
+{
+  "orderId": "O202604120001",
+  "userCouponId": "UC9001",
+  "requestId": "a3d4..."
+}
+
+Response
+{ "ok": true, "status": "LOCKED" }</code></pre>
+
+  <h3>回退接口示例</h3>
+  <pre><code>POST /api/checkout/coupons/release-lock
+{
+  "orderId": "O202604120001",
+  "userCouponId": "UC9001",
+  "requestId": "a3d4...",
+  "reason": "PAY_FAILED"
+}
+
+Response
+{ "ok": true, "status": "AVAILABLE" }</code></pre>
+</body>
+</html>
