@@ -4,6 +4,7 @@ import ReactECharts from 'echarts-for-react'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
 import { getOrderStatistics, getTop10, getTurnoverStatistics, getUserStatistics } from '@/api/workspace'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 
 function splitCsv(value: any) {
@@ -16,7 +17,7 @@ function splitCsv(value: any) {
 }
 
 export function StatisticsPage() {
-  usePageTitle('IntelliDining - 数据统计')
+  usePageTitle('smart-dining智能点餐系统 - 数据统计')
   const [rangeType, setRangeType] = useState<number>(2)
   const [turnover, setTurnover] = useState<any>(null)
   const [users, setUsers] = useState<any>(null)
@@ -77,6 +78,7 @@ export function StatisticsPage() {
           })
         }
       } catch (e: any) {
+        if (isRequestCanceled(e)) return
         message.error(`请求出错了：${e?.message || '未知错误'}`)
       }
     })()

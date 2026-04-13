@@ -8,7 +8,7 @@
 
 .login-box {
   width: 1000px;
-  height: 474.38px;
+  min-height: 474.38px;
   border-radius: 8px;
   display: flex;
 
@@ -24,11 +24,12 @@
   border-radius: 0px 8px 8px 0px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 36px 0;
 
   .el-form {
-    width: 214px;
-    height: 307px;
+    width: 280px;
+    height: auto;
   }
 
   .el-form-item {
@@ -102,8 +103,9 @@
 }
 
 .login-form-title {
-  height: 36px;
+  height: auto;
   display: flex;
   justify-content: center;
+  margin-bottom: 18px;
+  width: 100%;
 }
-

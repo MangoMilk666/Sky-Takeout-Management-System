@@ -42,7 +42,7 @@ export function SetmealAddPage() {
   const id = searchParams.get('id') || ''
   const actionType = id ? 'edit' : 'add'
   const title = actionType === 'add' ? '添加套餐' : '修改套餐'
-  usePageTitle(`IntelliDining - ${title}`)
+  usePageTitle(`smart-dining智能点餐系统 - ${title}`)
 
   const [form] = Form.useForm<SetmealForm>()
   const [loading, setLoading] = useState(false)

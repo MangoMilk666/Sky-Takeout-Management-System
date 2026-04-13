@@ -1,4 +1,3 @@
-import { Card, Col, Row, Statistic, Typography, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -7,10 +6,27 @@ import {
   getOverviewDishes,
   getOverviewSetmeals,
 } from '@/api/workspace'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
+import { message } from '@/lib/ui/message'
+
+function pad2(n: number) {
+  return n < 10 ? `0${n}` : String(n)
+}
+
+function getTodayLabel() {
+  const d = new Date()
+  return `${d.getFullYear()}.${pad2(d.getMonth() + 1)}.${pad2(d.getDate())}`
+}
+
+function formatMoney(v: unknown) {
+  const n = Number(v)
+  if (!Number.isFinite(n)) return '0.00'
+  return n.toFixed(2)
+}
 
 export function DashboardPage() {
-  usePageTitle('IntelliDining - 工作台')
+  usePageTitle('smart-dining智能点餐系统 - 工作台')
   const [business, setBusiness] = useState<any>(null)
   const [orders, setOrders] = useState<any>(null)
   const [dishes, setDishes] = useState<any>(null)
@@ -30,118 +46,165 @@ export function DashboardPage() {
         if (String(d.data?.code) === '1') setDishes(d.data?.data)
         if (String(s.data?.code) === '1') setSetmeals(s.data?.data)
       } catch (e: any) {
+        if (isRequestCanceled(e)) return
         message.error(`请求出错了：${e?.message || '未知错误'}`)
       }
     })()
   }, [])
 
+  const today = getTodayLabel()
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <Card
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>今日数据</span>
+    <div className="dashboard-container home">
+      <div className="container">
+        <h2 className="homeTitle">
+          今日数据<i>{today}</i>
+          <span>
             <Link to="/statistics">详细数据</Link>
-          </div>
-        }
-      >
-        <Row gutter={16}>
-          <Col span={6}>
-            <Statistic title="营业额" prefix="¥" value={Number(business?.turnover || 0).toFixed(2)} />
-          </Col>
-          <Col span={6}>
-            <Statistic title="有效订单" value={business?.validOrderCount || 0} />
-          </Col>
-          <Col span={6}>
-            <Statistic
-              title="订单完成率"
-              value={Number(business?.orderCompletionRate || 0) * 100}
-              precision={0}
-              suffix="%"
-            />
-          </Col>
-          <Col span={6}>
-            <Statistic title="平均客单价" prefix="¥" value={Number(business?.unitPrice || 0).toFixed(2)} />
-          </Col>
-        </Row>
-        <div style={{ marginTop: 16 }}>
-          <Statistic title="新增用户" value={business?.newUsers || 0} />
+          </span>
+        </h2>
+        <div className="overviewBox">
+          <ul>
+            <li>
+              <p className="tit">营业额</p>
+              <p className="num">¥ {formatMoney(business?.turnover)}</p>
+            </li>
+            <li>
+              <p className="tit">有效订单</p>
+              <p className="num">{business?.validOrderCount ?? 0}</p>
+            </li>
+            <li>
+              <p className="tit">订单完成率</p>
+              <p className="num">{Math.round(Number(business?.orderCompletionRate || 0) * 100)}%</p>
+            </li>
+            <li>
+              <p className="tit">平均客单价</p>
+              <p className="num">¥ {formatMoney(business?.unitPrice)}</p>
+            </li>
+            <li>
+              <p className="tit">新增用户</p>
+              <p className="num">{business?.newUsers ?? 0}</p>
+            </li>
+          </ul>
         </div>
-      </Card>
+      </div>
 
-      <Card
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>订单管理</span>
+      <div className="container">
+        <h2 className="homeTitle">
+          订单管理<i>{today}</i>
+          <span>
             <Link to="/order">订单明细</Link>
+          </span>
+        </h2>
+        <div className="orderviewBox">
+          <ul>
+            <li>
+              <span className="status">
+                <i className="iconfont icon-waiting" />待接单
+              </span>
+              <span className="num tip">
+                <Link to="/order?status=2">{orders?.waitingOrders ?? 0}</Link>
+              </span>
+            </li>
+            <li>
+              <span className="status">
+                <i className="iconfont icon-staySway" />待派送
+              </span>
+              <span className="num tip">
+                <Link to="/order?status=3">{orders?.deliveredOrders ?? 0}</Link>
+              </span>
+            </li>
+            <li>
+              <span className="status">
+                <i className="iconfont icon-complete" />已完成
+              </span>
+              <span className="num">
+                <Link to="/order?status=5">{orders?.completedOrders ?? 0}</Link>
+              </span>
+            </li>
+            <li>
+              <span className="status">
+                <i className="iconfont icon-cancel" />已取消
+              </span>
+              <span className="num">
+                <Link to="/order?status=6">{orders?.cancelledOrders ?? 0}</Link>
+              </span>
+            </li>
+            <li>
+              <span className="status">
+                <i className="iconfont icon-all" />全部订单
+              </span>
+              <span className="num">
+                <Link to="/order">{orders?.allOrders ?? 0}</Link>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="homeMain">
+        <div className="container">
+          <h2 className="homeTitle">
+            菜品总览
+            <span>
+              <Link to="/dish">菜品管理</Link>
+            </span>
+          </h2>
+          <div className="orderviewBox">
+            <ul>
+              <li>
+                <span className="status">
+                  <i className="iconfont icon-open" />已启售
+                </span>
+                <span className="num">{dishes?.sold ?? 0}</span>
+              </li>
+              <li>
+                <span className="status">
+                  <i className="iconfont icon-stop" />已停售
+                </span>
+                <span className="num">{dishes?.discontinued ?? 0}</span>
+              </li>
+              <li className="add">
+                <Link to="/dish/add">
+                  <i />
+                  <p>新增菜品</p>
+                </Link>
+              </li>
+            </ul>
           </div>
-        }
-      >
-        <Row gutter={16}>
-          <Col span={4}>
-            <Statistic title="待接单" value={orders?.waitingOrders || 0} />
-          </Col>
-          <Col span={4}>
-            <Statistic title="待派送" value={orders?.deliveredOrders || 0} />
-          </Col>
-          <Col span={4}>
-            <Statistic title="已完成" value={orders?.completedOrders || 0} />
-          </Col>
-          <Col span={4}>
-            <Statistic title="已取消" value={orders?.cancelledOrders || 0} />
-          </Col>
-          <Col span={4}>
-            <Statistic title="全部订单" value={orders?.allOrders || 0} />
-          </Col>
-        </Row>
-      </Card>
+        </div>
 
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card
-            title={
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>菜品总览</span>
-                <Link to="/dish">菜品管理</Link>
-              </div>
-            }
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Statistic title="已启售" value={dishes?.sold || 0} />
-              </Col>
-              <Col span={12}>
-                <Statistic title="已停售" value={dishes?.discontinued || 0} />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card
-            title={
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>套餐总览</span>
-                <Link to="/setmeal">套餐管理</Link>
-              </div>
-            }
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Statistic title="已启售" value={setmeals?.sold || 0} />
-              </Col>
-              <Col span={12}>
-                <Statistic title="已停售" value={setmeals?.discontinued || 0} />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      </Row>
-
-      <Card>
-        <Typography.Text type="secondary">
-          IntelliDining 管理端已完成核心页面迁移，后续可继续对齐原项目的视觉细节与表格字段。
-        </Typography.Text>
-      </Card>
+        <div className="container">
+          <h2 className="homeTitle">
+            套餐总览
+            <span>
+              <Link to="/setmeal">套餐管理</Link>
+            </span>
+          </h2>
+          <div className="orderviewBox">
+            <ul>
+              <li>
+                <span className="status">
+                  <i className="iconfont icon-open" />已启售
+                </span>
+                <span className="num">{setmeals?.sold ?? 0}</span>
+              </li>
+              <li>
+                <span className="status">
+                  <i className="iconfont icon-stop" />已停售
+                </span>
+                <span className="num">{setmeals?.discontinued ?? 0}</span>
+              </li>
+              <li className="add">
+                <Link to="/setmeal/add">
+                  <i />
+                  <p>新增套餐</p>
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

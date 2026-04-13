@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 
 export function NotFoundPage() {
-  usePageTitle('IntelliDining - 404')
+  usePageTitle('smart-dining智能点餐系统 - 404')
   return (
     <Result
       status="404"
@@ -17,4 +17,3 @@ export function NotFoundPage() {
     />
   )
 }
-

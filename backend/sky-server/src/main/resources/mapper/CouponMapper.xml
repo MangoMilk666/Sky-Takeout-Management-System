@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.CouponMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into coupon (name, discount_type, discount, total_count, remained_count, begin_time, end_time, create_time, update_time)
+        values (#{name}, #{discountType}, #{discount}, #{totalCount}, #{remainedCount}, #{beginTime}, #{endTime}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="getById" resultType="com.sky.entity.Coupon">
+        select * from coupon where id = #{id}
+    </select>
+
+    <select id="listAll" resultType="com.sky.entity.Coupon">
+        select * from coupon order by id desc
+    </select>
+
+    <select id="listAvailable" resultType="com.sky.entity.Coupon">
+        select *
+        from coupon
+        where remained_count &gt; 0
+          and now() between begin_time and end_time
+        order by id desc
+    </select>
+
+    <update id="decreaseRemainedCount">
+        update coupon set remained_count = remained_count - 1, update_time = now()
+        where id = #{id} and remained_count &gt; 0
+    </update>
+
+</mapper>

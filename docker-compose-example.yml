@@ -9,12 +9,12 @@ services:
     # command: redis-server --requirepass ${REDIS_PASSWORD}
 
   sky-takeout-app:
-    build: xxx
-    container_name: xxx
+    build: xxxx
+    container_name: xxxx
     ports:
       - "xxxx:xxxx"
     depends_on:
-      - sky-redis
+      - xxx
     volumes:
       # 映射宿主机目录到容器内，确保图片持久化
       - ${UPLOAD_PATH_HOST}:/app/data/img_data
@@ -28,8 +28,8 @@ services:
       - SKY_DATASOURCE_PASSWORD=${DB_PASSWORD}
 
       # --- Redis ---
-      - SKY_REDIS_HOST=xxx
-      - SKY_REDIS_PORT=xxx
+      - SKY_REDIS_HOST=xxxx
+      - SKY_REDIS_PORT=6379
       - SKY_REDIS_PASSWORD=${REDIS_PASSWORD}
       - SKY_REDIS_DATABASE=0
 
@@ -42,7 +42,7 @@ services:
       - SKY_JWT_USER_TOKEN_NAME=authentication
       
       # --- 静态资源路径 (对应 WebMvcConfiguration 中的 @Value) ---
-      - SKY_UPLOAD-PATH=xxx
+      - SKY_UPLOAD-PATH=xxx/xxx
 
       # --- WeChat ---
       - SKY_WECHAT_APPID=${WECHAT_APPID}

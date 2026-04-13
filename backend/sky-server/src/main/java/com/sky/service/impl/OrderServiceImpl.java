@@ -39,6 +39,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderDetailMapper orderDetailMapper;
     @Autowired
+    private CouponMapper couponMapper;
+    @Autowired
+    private UserCouponMapper userCouponMapper;
+    @Autowired
     private UserMapper userMapper;
     // 注入vx支付工具类
     @Autowired
@@ -75,6 +79,49 @@ public class OrderServiceImpl implements OrderService {
         order.setUserId(BaseContext.getCurrentId()); //用户id
         order.setOrderTime(LocalDateTime.now());
         order.setPayStatus(Orders.UN_PAID);
+        BigDecimal originalAmount = order.getAmount() == null ? BigDecimal.ZERO : order.getAmount();
+        order.setOriginalAmount(originalAmount);
+        order.setDiscountAmount(originalAmount);
+
+        Long couponId = ordersSubmitDTO.getCouponId();
+        if (couponId != null) {
+            Coupon coupon = couponMapper.getById(couponId);
+            if (coupon == null) {
+                throw new OrderBusinessException(MessageConstant.COUPON_NOT_FOUND);
+            }
+            LocalDateTime now = LocalDateTime.now();
+            if (coupon.getBeginTime() == null || coupon.getEndTime() == null || now.isBefore(coupon.getBeginTime()) || now.isAfter(coupon.getEndTime())) {
+                throw new OrderBusinessException(MessageConstant.COUPON_NOT_AVAILABLE);
+            }
+
+            Long userId = BaseContext.getCurrentId();
+            Long userCouponId = userCouponMapper.getUnusedIdByCouponId(userId, couponId);
+            if (userCouponId == null) {
+                throw new OrderBusinessException(MessageConstant.COUPON_NOT_AVAILABLE);
+            }
+
+            BigDecimal discountAmount = originalAmount;
+            if (coupon.getDiscountType() != null && coupon.getDiscount() != null) {
+                if (coupon.getDiscountType() == 1) {
+                    discountAmount = originalAmount.multiply(coupon.getDiscount());
+                } else if (coupon.getDiscountType() == 2) {
+                    discountAmount = originalAmount.subtract(coupon.getDiscount());
+                }
+            }
+            if (discountAmount.compareTo(BigDecimal.ZERO) < 0) {
+                discountAmount = BigDecimal.ZERO;
+            }
+            discountAmount = discountAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
+
+            order.setCouponId(couponId);
+            order.setDiscountAmount(discountAmount);
+            order.setAmount(discountAmount);
+
+            Integer updated = userCouponMapper.markUsed(userCouponId, userId, now);
+            if (updated == null || updated == 0) {
+                throw new OrderBusinessException(MessageConstant.COUPON_NOT_AVAILABLE);
+            }
+        }
 //        order.setUserName(addressBook.getConsignee()); //用户名，收货人？
         order.setPhone(addressBook.getPhone());
         order.setAddress(addressBook.getDetail()); // 用户地址

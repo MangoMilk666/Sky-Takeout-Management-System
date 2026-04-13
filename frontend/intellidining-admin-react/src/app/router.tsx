@@ -10,6 +10,7 @@ import { EmployeePage } from '@/pages/employee/EmployeePage'
 import { LoginPage } from '@/pages/login/LoginPage'
 import { NotFoundPage } from '@/pages/notfound/NotFoundPage'
 import { OrderPage } from '@/pages/order/OrderPage'
+import { CouponPage } from '@/pages/coupon/CouponPage'
 import { SetmealAddPage } from '@/pages/setmeal/SetmealAddPage'
 import { SetmealPage } from '@/pages/setmeal/SetmealPage'
 import { StatisticsPage } from '@/pages/statistics/StatisticsPage'
@@ -27,6 +28,7 @@ export const router = createHashRouter([
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/statistics', element: <StatisticsPage /> },
           { path: '/order', element: <OrderPage /> },
+          { path: '/coupon', element: <CouponPage /> },
           { path: '/setmeal', element: <SetmealPage /> },
           { path: '/setmeal/add', element: <SetmealAddPage /> },
           { path: '/dish', element: <DishPage /> },

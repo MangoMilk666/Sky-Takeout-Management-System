@@ -24,13 +24,10 @@ export function attachPendingController(
   config: InternalAxiosRequestConfig,
   key: string,
 ): InternalAxiosRequestConfig {
-  if (inFlight.has(key)) {
-    const controller = new AbortController()
-    controller.abort('重复请求')
-    config.signal = controller.signal
-    return config
+  const existing = inFlight.get(key)
+  if (existing) {
+    existing.abort('被新请求替换')
   }
-
   const controller = new AbortController()
   inFlight.set(key, controller)
   config.signal = controller.signal
@@ -40,4 +37,3 @@ export function attachPendingController(
 export function clearPending(key: string) {
   inFlight.delete(key)
 }
-

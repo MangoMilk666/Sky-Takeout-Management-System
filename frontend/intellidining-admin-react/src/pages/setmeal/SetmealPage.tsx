@@ -1,7 +1,8 @@
-import { Button, Card, Input, Modal, Select, Space, Table, Tag, message } from 'antd'
+import { Button, Card, Input, Modal, Select, Space, Table, message } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getCategoryList } from '@/api/dish'
+import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { deleteSetmeal, getSetmealPage, setmealStatusByStatus } from '@/api/setMeal'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 
@@ -17,7 +18,7 @@ type SetmealRow = {
 }
 
 export function SetmealPage() {
-  usePageTitle('IntelliDining - 套餐管理')
+  usePageTitle('smart-dining智能点餐系统 - 套餐管理')
   const navigate = useNavigate()
 
   const [keyword, setKeyword] = useState('')
@@ -58,6 +59,7 @@ export function SetmealPage() {
         message.error(res.data?.msg || '查询失败')
       }
     } catch (e: any) {
+      if (isRequestCanceled(e)) return
       message.error(`请求出错了：${e?.message || '未知错误'}`)
     } finally {
       setLoading(false)
@@ -104,7 +106,7 @@ export function SetmealPage() {
         dataIndex: 'status',
         render: (s: SetmealRow['status']) => {
           const stopped = String(s) === '0'
-          return <Tag color={stopped ? 'default' : 'green'}>{stopped ? '停售' : '启售'}</Tag>
+          return <div className={`tableColumn-status ${stopped ? 'stop-use' : ''}`}>{stopped ? '停售' : '启售'}</div>
         },
       },
       { title: '最后操作时间', dataIndex: 'updateTime' },
