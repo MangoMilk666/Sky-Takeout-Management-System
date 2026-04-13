@@ -27,15 +27,25 @@ public class CouponServiceImpl implements CouponService {
     private static final String STOCK_KEY_PREFIX = "sky:coupon:stock:";
     private static final String USER_SET_KEY_PREFIX = "sky:coupon:users:";
     private static final String CLAIM_QUEUE_KEY = "sky:coupon:claim:queue";
-
+    /**
+     * LUA脚本，处理用户的领券请求
+     * 保证原子性
+     * 减少网络IO
+     * 无锁化设计
+     * 由Redis单线程执行
+     */
     private static final String CLAIM_LUA = "local stock_key = KEYS[1] "
             + "local user_set_key = KEYS[2] "
             + "local user_id = ARGV[1] "
+            // 检查user_id是否已经存在
             + "if redis.call('SISMEMBER', user_set_key, user_id) == 1 then return -1 end "
             + "local stock = tonumber(redis.call('get', stock_key) or '0') "
+            // 获取当前奖池库存
             + "if stock <= 0 then return 0 end "
+            // 原子扣减库存，记录用户id
             + "redis.call('DECR', stock_key) "
             + "redis.call('SADD', user_set_key, user_id) "
+            // 抢券成功返回1
             + "return 1";
 
     @Autowired
@@ -52,6 +62,11 @@ public class CouponServiceImpl implements CouponService {
         return script;
     }
 
+    /**
+     * 发布优惠券
+     * @param couponPublishDTO
+     * @return
+     */
     @Override
     @Transactional
     public Long publish(CouponPublishDTO couponPublishDTO) {
