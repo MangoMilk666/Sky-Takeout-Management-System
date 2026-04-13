@@ -1,0 +1,41 @@
+<view class="page">
+  <uni-nav-bar left-icon="back" leftIcon="arrowleft" title="领券中心" statusBar="true" fixed="true" color="#ffffff" backgroundColor="#333333" bind:clickLeft="goBack" />
+
+  <view class="content">
+    <block wx:if="{{loading}}">
+      <view class="loading">加载中...</view>
+    </block>
+
+    <block wx:if="{{!loading && coupons.length === 0}}">
+      <empty />
+    </block>
+
+    <block wx:for="{{coupons}}" wx:for-item="c" wx:key="id">
+      <view class="card">
+        <view class="card-hd">
+          <text class="name">{{c.name}}</text>
+          <text class="tag">{{c.typeText}}</text>
+        </view>
+
+        <view class="card-bd">
+          <view class="line">
+            <text class="label">优惠：</text>
+            <text class="value">{{c.discountText}}</text>
+          </view>
+          <view class="line">
+            <text class="label">库存：</text>
+            <text class="value">{{c.remainedCount}} / {{c.totalCount}}</text>
+          </view>
+          <view class="line">
+            <text class="label">有效期：</text>
+            <text class="value">{{c.beginTime}} ~ {{c.endTime}}</text>
+          </view>
+        </view>
+
+        <view class="card-ft">
+          <button class="btn" type="default" data-id="{{c.id}}" bindtap="handleClaim">领取</button>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

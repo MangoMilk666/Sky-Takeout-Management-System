@@ -34,6 +34,15 @@
         order by uc.id desc
     </select>
 
+    <select id="getUnusedIdByCouponId" resultType="java.lang.Long">
+        select id from user_coupon
+        where user_id = #{userId}
+          and coupon_id = #{couponId}
+          and status = 0
+        order by id desc
+        limit 1
+    </select>
+
     <update id="markUsed">
         update user_coupon
         set status = 1, used_time = #{usedTime}

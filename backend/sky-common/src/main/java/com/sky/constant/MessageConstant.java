@@ -27,7 +27,7 @@ public class MessageConstant {
     public static final String COUPON_OUT_OF_STOCK = "优惠券被抢完";
     public static final String COUPON_NOT_FOUND = "优惠券不存在";
     public static final String COUPON_NOT_AVAILABLE = "优惠券已过期";
-    public static final String COUPON_DUPLICATE = "优惠券已被使用";
+    public static final String COUPON_DUPLICATE = "优惠券已经领取";
 
 
 

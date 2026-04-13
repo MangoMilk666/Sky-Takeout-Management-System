@@ -19,6 +19,8 @@ public interface UserCouponMapper {
 
     List<UserCouponVO> listAvailableByUserId(Long userId);
 
+    Long getUnusedIdByCouponId(Long userId, Long couponId);
+
     Integer markUsed(Long id, Long userId, LocalDateTime usedTime);
 
     Integer revertToUnused(Long id);

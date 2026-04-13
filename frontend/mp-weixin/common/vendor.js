@@ -19948,7 +19948,7 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.repetitionOrder = exports.paymentOrder = exports.reminderOrder = exports.cancelOrder = exports.getOrderDetail = exports.getOrderPage = exports.getShopPhone = exports.getShopStatus = exports.querySetmealDishById = exports.getAddressBookDefault = exports.oneOrderAgain = exports.queryAddressBookById = exports.delAddressBook = exports.editAddressBook = exports.addAddressBook = exports.putAddressBookDefault = exports.queryAddressBookList = exports.submitOrderSubmit = exports.queryOrderUserPage = exports.delShoppingCart = exports.newShoppingCartSub = exports.newAddShoppingCartAdd = exports.editHoppingCart = exports.getShoppingCartList = exports.querySetmeaList = exports.addShoppingCart = exports.commonDownload = exports.dishListByCategoryId = exports.getCategoryList = exports.userLogin = exports.payOrder = exports.clearOrder = exports.delDish = exports.addDish = exports.getDishList = exports.getDishDetail = exports.getList = exports.getMoreNorm = exports.getTableOrderDishList = exports.getTableState = exports.openTable = void 0;var _request = __webpack_require__(/*! ../../utils/request.js */ 25);
+Object.defineProperty(exports, "__esModule", { value: true });exports.userCouponClaim = exports.userCouponList = exports.repetitionOrder = exports.paymentOrder = exports.reminderOrder = exports.cancelOrder = exports.getOrderDetail = exports.getOrderPage = exports.getShopPhone = exports.getShopStatus = exports.querySetmealDishById = exports.getAddressBookDefault = exports.oneOrderAgain = exports.queryAddressBookById = exports.delAddressBook = exports.editAddressBook = exports.addAddressBook = exports.putAddressBookDefault = exports.queryAddressBookList = exports.submitOrderSubmit = exports.queryOrderUserPage = exports.delShoppingCart = exports.newShoppingCartSub = exports.newAddShoppingCartAdd = exports.editHoppingCart = exports.getShoppingCartList = exports.querySetmeaList = exports.addShoppingCart = exports.commonDownload = exports.dishListByCategoryId = exports.getCategoryList = exports.userLogin = exports.payOrder = exports.clearOrder = exports.delDish = exports.addDish = exports.getDishList = exports.getDishDetail = exports.getList = exports.getMoreNorm = exports.getTableOrderDishList = exports.getTableState = exports.openTable = void 0;var _request = __webpack_require__(/*! ../../utils/request.js */ 25);
 
 // 开桌
 var openTable = function openTable(params) {return (
@@ -20162,9 +20162,27 @@ exports.queryOrderUserPage = queryOrderUserPage;var submitOrderSubmit = function
 
 };
 
+// 我的优惠券列表
+exports.submitOrderSubmit = submitOrderSubmit;var userCouponList = function userCouponList(params) {
+  return (0, _request.request)({
+    url: '/user/coupon/list',
+    method: 'GET',
+    params: params });
+
+};
+
+// 领券
+exports.userCouponList = userCouponList;var userCouponClaim = function userCouponClaim(params) {
+  return (0, _request.request)({
+    url: '/user/coupon/claim',
+    method: 'POST',
+    params: params });
+
+};
+
 
 // 查询地址列表
-exports.submitOrderSubmit = submitOrderSubmit;var queryAddressBookList = function queryAddressBookList(params) {
+exports.userCouponClaim = userCouponClaim;var queryAddressBookList = function queryAddressBookList(params) {
   return (0, _request.request)({
     url: '/user/addressBook/list',
     method: 'GET',
@@ -21835,6 +21853,13 @@ var _default = {
     return {
       platform: 'ios',
       orderDishPrice: 0,
+      orderOriginalPrice: 0,
+      couponId: null,
+      couponText: '不使用优惠券',
+      couponSave: 0,
+      couponSaveText: '0.00',
+      couponList: [],
+      couponPrompted: false,
       openPayType: false,
       psersonUrl: '../../static/btn_waiter_sel.png',
       nickName: '',
@@ -21955,6 +21980,8 @@ var _default = {
     // 获取一小时以后的时间
     this.getHarfAnOur();
 
+    this.loadCoupons();
+
     // 存在options说明换地址了
     if (this.addressData() && this.addressData().detail) {
       this.addressBookId = '';
@@ -21972,6 +21999,10 @@ var _default = {
 
 
 
+  },
+  onShow: function onShow() {
+    this.syncCouponFromStorage();
+    this.applyCouponToAmount();
   },
   onReady: function onReady() {var _this2 = this;
     uni.getSystemInfo({
@@ -22079,7 +22110,96 @@ var _default = {
         _this6.orderDishPrice += n.number * n.amount;
         _this6.orderDishNumber += n.number;
       });
-      this.orderDishPrice = this.orderDishPrice + 6 + this.orderDishNumber;
+      this.orderOriginalPrice = this.orderDishPrice + 6 + this.orderDishNumber;
+      this.applyCouponToAmount();
+    },
+    loadCoupons: function loadCoupons() {var _this6 = this;
+      (0, _api.userCouponList)().then(function (res) {
+        if (res && res.code === 1) {
+          _this6.couponList = Array.isArray(res.data) ? res.data : [];
+          _this6.syncCouponFromStorage();
+          _this6.applyCouponToAmount();
+        }
+      }).catch(function () {});
+    },
+    syncCouponFromStorage: function syncCouponFromStorage() {
+      var stored = uni.getStorageSync('selected_coupon_id');
+      if (!stored) return;
+      this.couponId = stored;
+      this.couponPrompted = true;
+
+      if (this.couponList && this.couponList.length > 0) {
+        var selected = this.couponList.find(function (c) {
+          return String(c.couponId) === String(stored);
+        });
+        if (selected) {
+          this.couponText = selected.name || '已选择优惠券';
+        }
+      }
+    },
+    openCouponPicker: function openCouponPicker() {var _this6 = this;
+      if (!this.couponList || this.couponList.length === 0) {
+        uni.showToast({ title: '暂无可用优惠券', icon: 'none' });
+        return;
+      }
+
+      var items = ['不使用优惠券'].concat(this.couponList.map(function (c) {
+        var name = c.name || '优惠券';
+        var dt = Number(c.discountType);
+        var d = Number(c.discount);
+        if (dt === 1 && !Number.isNaN(d)) return "".concat(name, " (").concat((d * 10).toFixed(1).replace(/\\.0$/, ''), "折)");
+        if (dt === 2 && !Number.isNaN(d)) return "".concat(name, " (减").concat(d.toFixed(2), "元)");
+        return name;
+      }));
+
+      uni.showActionSheet({
+        itemList: items,
+        success: function success(e) {
+          var idx = e.tapIndex;
+          if (idx === 0) {
+            _this6.couponId = null;
+            _this6.couponText = '不使用优惠券';
+            _this6.applyCouponToAmount();
+            uni.showToast({ title: '已取消优惠券', icon: 'none' });
+            return;
+          }
+          var c = _this6.couponList[idx - 1];
+          if (!c) return;
+          _this6.couponId = c.couponId;
+          _this6.couponText = c.name || '已选择优惠券';
+          _this6.applyCouponToAmount();
+          uni.showToast({ title: "已选择优惠券，已优惠￥".concat(_this6.couponSaveText), icon: 'none' });
+        } });
+    },
+    applyCouponToAmount: function applyCouponToAmount() {
+      var original = Number(this.orderOriginalPrice || 0);
+      var discountAmount = original;
+      var save = 0;
+
+      if (this.couponId && this.couponList && this.couponList.length > 0) {
+        var selected = this.couponList.find(function (c) {
+          return String(c.couponId) === String(this.couponId);
+        }.bind(this));
+
+        if (selected) {
+          var dt = Number(selected.discountType);
+          var d = Number(selected.discount);
+          if (dt === 1 && !Number.isNaN(d)) discountAmount = original * d;
+          if (dt === 2 && !Number.isNaN(d)) discountAmount = original - d;
+        } else {
+          this.couponId = null;
+          this.couponText = '不使用优惠券';
+        }
+      }
+
+      if (discountAmount < 0) discountAmount = 0;
+      discountAmount = Math.round(discountAmount * 100) / 100;
+      save = Math.round((original - discountAmount) * 100) / 100;
+      if (save < 0) save = 0;
+
+      this.orderDishPrice = discountAmount;
+      this.couponSave = save;
+      this.couponSaveText = save.toFixed(2);
     },
     // 返回上一级
     goBack: function goBack() {
@@ -22101,6 +22221,13 @@ var _default = {
 
         return false;
       }
+
+      if (!this.couponPrompted && this.couponList && this.couponList.length > 0) {
+        this.couponPrompted = true;
+        this.isHandlePy = false;
+        this.openCouponPicker();
+        return false;
+      }
       var num = null;
       var status = null;
 
@@ -22116,7 +22243,8 @@ var _default = {
       this.status), _defineProperty(_params, "tablewareNumber",
       this.num), _defineProperty(_params, "packAmount",
       this.orderDishNumber), _defineProperty(_params, "amount",
-      this.orderDishPrice), _params);
+      this.orderDishPrice), _defineProperty(_params, "couponId",
+      this.couponId), _params);
 
       console.log(this.arrivalTime, params);
 

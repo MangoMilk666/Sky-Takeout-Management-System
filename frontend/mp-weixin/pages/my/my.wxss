@@ -86,7 +86,7 @@
 }
 .my-center .container .address_order.data-v-0be17cc6 {
   width: 710rpx;
-  height: 200rpx;
+  height: 300rpx;
   margin: 20rpx auto;
   margin-top: 0;
 }
@@ -156,6 +156,44 @@
   -webkit-transform: translateY(-50%);
           transform: translateY(-50%);
 }
+
+.my-center .container .address_order .coupon.data-v-0be17cc6 {
+  line-height: 100rpx;
+  position: relative;
+  border-top: 1px dashed #ebebeb;
+  margin-left: 30rpx;
+  margin-right: 20rpx;
+}
+
+.my-center .container .address_order .coupon .location.data-v-0be17cc6 {
+  width: 34rpx;
+  height: 36rpx;
+  margin-right: 8rpx;
+  vertical-align: middle;
+  margin-bottom: 4rpx;
+}
+
+.my-center .container .address_order .coupon .coupon_word.data-v-0be17cc6 {
+  opacity: 1;
+  font-size: 28rpx;
+  font-family: PingFangSC, PingFangSC-Regular;
+  font-weight: 400;
+  text-align: center;
+  color: #333333;
+  line-height: 40rpx;
+}
+
+.my-center .container .address_order .coupon .to_right.data-v-0be17cc6 {
+  width: 30rpx;
+  height: 30rpx;
+  vertical-align: middle;
+  color: #fff;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+}
 .my-center .container .recent.data-v-0be17cc6 {
   height: 60rpx;
   padding: 0 16rpx 0 22rpx;
@@ -193,4 +231,3 @@
 .data-v-0be17cc6 .uni-navbar--border {
   border-width: 0 !important;
 }
-

@@ -13,6 +13,7 @@ public interface CouponMapper {
 
     List<Coupon> listAll();
 
+    List<Coupon> listAvailable();
+
     Integer decreaseRemainedCount(Long id);
 }
-

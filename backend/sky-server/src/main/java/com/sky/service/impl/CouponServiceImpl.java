@@ -120,6 +120,11 @@ public class CouponServiceImpl implements CouponService {
         return userCouponMapper.listAvailableByUserId(userId);
     }
 
+    @Override
+    public List<Coupon> listAvailable() {
+        return couponMapper.listAvailable();
+    }
+
     private static class ClaimMsg {
         public Long couponId;
         public Long userId;
