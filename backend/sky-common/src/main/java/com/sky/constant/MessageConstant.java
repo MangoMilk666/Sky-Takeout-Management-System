@@ -24,5 +24,12 @@ public class MessageConstant {
     public static final String DISH_BE_RELATED_BY_SETMEAL = "当前菜品关联了套餐,不能删除";
     public static final String ORDER_STATUS_ERROR = "订单状态错误";
     public static final String ORDER_NOT_FOUND = "订单不存在";
+    public static final String COUPON_OUT_OF_STOCK = "优惠券被抢完";
+    public static final String COUPON_NOT_FOUND = "优惠券不存在";
+    public static final String COUPON_NOT_AVAILABLE = "优惠券已过期";
+    public static final String COUPON_DUPLICATE = "优惠券已被使用";
+
+
+
 
 }

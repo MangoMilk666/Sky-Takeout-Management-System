@@ -27,7 +27,7 @@ public interface OrderMapper {
      * 根据订单号查询订单
      * @param orderNumber
      */
-    @Select("select * from orders where number = #{orderNumber}")
+    @Select("select id, number, status, user_id, address_book_id, order_time, checkout_time, pay_method, pay_status, original_amount, coupon_id, discount_amount, coalesce(amount, discount_amount) as amount, remark, phone, address, user_name, consignee, cancel_reason, rejection_reason, cancel_time, estimated_delivery_time, delivery_status, delivery_time, pack_amount, tableware_number, tableware_status from orders where number = #{orderNumber}")
     Orders getByNumber(String orderNumber);
 
     /**
@@ -39,14 +39,14 @@ public interface OrderMapper {
     /**
      * 用户(分页）查询历史订单信息
      */
-    @Select("select * from orders where user_id = #{userId}")
+    @Select("select id, number, status, user_id, address_book_id, order_time, checkout_time, pay_method, pay_status, coalesce(amount, discount_amount) as amount, remark, phone, address, user_name, consignee, cancel_reason, rejection_reason, cancel_time, estimated_delivery_time, delivery_status, delivery_time, pack_amount, tableware_number, tableware_status from orders where user_id = #{userId}")
     Page<OrderHistoryVO> pageQueryByUser(OrdersPageQueryDTO ordersPageQueryDTO);
 
 
     /**
      * 根据订单id查询订单
      */
-    @Select("select * from orders where id = #{orderId}")
+    @Select("select id, number, status, user_id, address_book_id, order_time, checkout_time, pay_method, pay_status, original_amount, coupon_id, discount_amount, coalesce(amount, discount_amount) as amount, remark, phone, address, user_name, consignee, cancel_reason, rejection_reason, cancel_time, estimated_delivery_time, delivery_status, delivery_time, pack_amount, tableware_number, tableware_status from orders where id = #{orderId}")
     Orders getById(Long orderId);
 
     /**
@@ -63,13 +63,13 @@ public interface OrderMapper {
     /**
      * 根据订单状态和下单时间查询
      */
-    @Select("select * from orders where status=#{status} and order_time < #{time}")
+    @Select("select id, number, status, user_id, address_book_id, order_time, checkout_time, pay_method, pay_status, original_amount, coupon_id, discount_amount, coalesce(amount, discount_amount) as amount, remark, phone, address, user_name, consignee, cancel_reason, rejection_reason, cancel_time, estimated_delivery_time, delivery_status, delivery_time, pack_amount, tableware_number, tableware_status from orders where status=#{status} and order_time < #{time}")
     List<Orders> getByStatusAndOrderTimeLT(Integer status, LocalDateTime time);
 
     /**
      * 查询时间范围内的营业额
      */
-    @Select("select (case when sum(amount) is not null then sum(amount) else 0 end) from orders where status = 5 and order_time>=#{beginTime} and order_time <= #{endTime}")
+    @Select("select (case when sum(coalesce(amount, discount_amount)) is not null then sum(coalesce(amount, discount_amount)) else 0 end) from orders where status = 5 and order_time>=#{beginTime} and order_time <= #{endTime}")
     BigDecimal getTurnoverStatistics(LocalDateTime beginTime, LocalDateTime endTime);
 
     /**

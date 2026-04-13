@@ -21,6 +21,7 @@ const menuItems: MenuItem[] = [
   { to: '/dashboard', label: '工作台', iconClass: 'dashboard' },
   { to: '/statistics', label: '数据统计', iconClass: 'icon-statistics' },
   { to: '/order', label: '订单管理', iconClass: 'icon-order' },
+  { to: '/coupon', label: '优惠券', iconClass: 'icon-inform' },
   { to: '/setmeal', label: '套餐管理', iconClass: 'icon-combo' },
   { to: '/dish', label: '菜品管理', iconClass: 'icon-dish' },
   { to: '/category', label: '分类管理', iconClass: 'icon-category' },

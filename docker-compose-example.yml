@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  sky-redis:
+    image: redis:latest
+    container_name: xxx
+    restart: always
+    # 如果生产环境需要 Redis 密码，可以取消下面注释
+    # command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  sky-takeout-app:
+    build: xxxx
+    container_name: xxxx
+    ports:
+      - "xxxx:xxxx"
+    depends_on:
+      - xxx
+    volumes:
+      # 映射宿主机目录到容器内，确保图片持久化
+      - ${UPLOAD_PATH_HOST}:/app/data/img_data
+    environment:
+      # --- Database ---
+      - SKY_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SKY_DATASOURCE_HOST=${DB_HOST}
+      - SKY_DATASOURCE_PORT=${DB_PORT}
+      - SKY_DATASOURCE_DATABASE=${DB_NAME}
+      - SKY_DATASOURCE_USERNAME=${DB_USER}
+      - SKY_DATASOURCE_PASSWORD=${DB_PASSWORD}
+
+      # --- Redis ---
+      - SKY_REDIS_HOST=xxxx
+      - SKY_REDIS_PORT=6379
+      - SKY_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SKY_REDIS_DATABASE=0
+
+      # --- JWT & Common ---
+      - SKY_JWT_ADMIN_SECRET_KEY=${JWT_ADMIN_KEY}
+      - SKY_JWT_ADMIN_TTL=7200000
+      - SKY_JWT_ADMIN_TOKEN_NAME=token
+      - SKY_JWT_USER_SECRET_KEY=${JWT_USER_KEY}
+      - SKY_JWT_USER_TTL=7200000
+      - SKY_JWT_USER_TOKEN_NAME=authentication
+      
+      # --- 静态资源路径 (对应 WebMvcConfiguration 中的 @Value) ---
+      - SKY_UPLOAD-PATH=xxx/xxx
+
+      # --- WeChat ---
+      - SKY_WECHAT_APPID=${WECHAT_APPID}
+      - SKY_WECHAT_SECRET=${WECHAT_SECRET}
+    restart: always

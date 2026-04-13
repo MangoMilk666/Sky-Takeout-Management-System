@@ -28,5 +28,10 @@ node_modules/
 /Users/henrysang/Documents/Sky-Takeout/docs/API-doc/
 /Users/henrysang/Documents/Sky-Takeout/data
 /Users/henrysang/Documents/Sky-Takeout/test/
-# 忽略包含本地开发明文数据的配置文件
+
+# 敏感数据配置文件
 */application-dev.yml
+docker-compose.yml
+
+# vibe coding
+.trae/

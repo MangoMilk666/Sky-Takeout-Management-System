@@ -63,6 +63,15 @@ public class Orders implements Serializable {
     //支付状态 0未支付 1已支付 2退款
     private Integer payStatus;
 
+    //订单原价
+    private BigDecimal originalAmount;
+
+    //订单使用优惠券id
+    private Long couponId;
+
+    //优惠后金额
+    private BigDecimal discountAmount;
+
     //实收金额
     private BigDecimal amount;
 
