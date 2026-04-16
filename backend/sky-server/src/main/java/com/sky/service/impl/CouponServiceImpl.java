@@ -90,6 +90,9 @@ public class CouponServiceImpl implements CouponService {
         return coupon.getId();
     }
 
+    /**
+     * 用户抢券
+     */
     @Override
     public Long claim(CouponClaimDTO couponClaimDTO) {
         Long userId = BaseContext.getCurrentId();
