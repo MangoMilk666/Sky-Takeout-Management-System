@@ -20,7 +20,6 @@ node_modules/
 *.jar
 *.war
 *.ear
-.env
 
 
 # dirs
@@ -32,6 +31,8 @@ node_modules/
 # 敏感数据配置文件
 */application-dev.yml
 docker-compose.yml
+.env
+*/.env.local
 
 # vibe coding
 .trae/
