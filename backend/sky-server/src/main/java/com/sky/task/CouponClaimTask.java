@@ -15,6 +15,7 @@ public class CouponClaimTask {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    // 处理写入抢券成功数据的消费者
     @Autowired
     private CouponClaimConsumer couponClaimConsumer;
 

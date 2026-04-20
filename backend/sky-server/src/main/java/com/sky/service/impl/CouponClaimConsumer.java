@@ -11,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+/**
+ * 异步处理抢券成功请求的消费者类
+ */
 @Service
 public class CouponClaimConsumer {
     @Autowired
@@ -18,12 +21,16 @@ public class CouponClaimConsumer {
     @Autowired
     private CouponMapper couponMapper;
 
+    /**
+     * 将成功的抢券数据更新到db
+     */
     @Transactional
     public void consumeOne(String msg) {
         ClaimMsg claimMsg = JSON.parseObject(msg, ClaimMsg.class);
         if (claimMsg == null || claimMsg.userId == null || claimMsg.couponId == null || claimMsg.requestId == null) {
             return;
         }
+        // 检查是否已写入db，requestId的唯一性
         Long existed = userCouponMapper.getIdByRequestId(claimMsg.requestId);
         if (existed != null) {
             return;
@@ -41,7 +48,7 @@ public class CouponClaimConsumer {
         } catch (DataIntegrityViolationException e) {
             return;
         }
-
+        // 扣减db库存
         Integer updated = couponMapper.decreaseRemainedCount(claimMsg.couponId);
         if (updated == null || updated != 1) {
             throw new IllegalStateException("coupon remained_count mismatch");
