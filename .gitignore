@@ -37,5 +37,6 @@ docker-compose.yml
 # 本地开发文件
 */sky_take_out_backup.sql
 */advice.txt
+update-record.md
 # vibe coding
 .trae/
