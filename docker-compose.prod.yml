@@ -1,0 +1,67 @@
+# 生产标准版，作为唯一可提交的生产 compose 文件
+# 作用：给 GitHub Actions 打包进 release，用于宿主机 current/docker-compose.prod.yml 部署
+services:
+  sky-redis:
+    image: redis:7-alpine
+    container_name: sky-redis
+    restart: unless-stopped
+    environment:
+      # 未设置密码可留空
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-} 
+    command:
+      - sh
+      - -c
+      - |
+        if [ -n "${REDIS_PASSWORD}" ]; then
+          exec redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}";
+        else
+          exec redis-server --appendonly yes;
+        fi
+    volumes:
+      - sky_redis_data:/data
+
+  sky-takeout-app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sky-takeout-app
+    restart: unless-stopped
+    ports:
+      - "${APP_HOST_PORT:-8081}:8080"
+    depends_on:
+      - sky-redis
+    volumes:
+      - ${UPLOAD_PATH_HOST}:/app/data/img_data
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+
+      - SKY_DATASOURCE_DRIVER_CLASS_NAME=${SKY_DATASOURCE_DRIVER_CLASS_NAME:-com.mysql.cj.jdbc.Driver}
+      - SKY_DATASOURCE_HOST=${DB_HOST}
+      - SKY_DATASOURCE_PORT=${DB_PORT}
+      - SKY_DATASOURCE_DATABASE=${DB_NAME}
+      - SKY_DATASOURCE_USERNAME=${DB_USER}
+      - SKY_DATASOURCE_PASSWORD=${DB_PASSWORD}
+
+      - SKY_REDIS_HOST=sky-redis
+      - SKY_REDIS_PORT=6379
+      - SKY_REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - SKY_REDIS_DATABASE=${SKY_REDIS_DATABASE:-0}
+
+      - SKY_JWT_ADMIN_SECRET_KEY=${JWT_ADMIN_KEY}
+      - SKY_JWT_ADMIN_TTL=${JWT_ADMIN_TTL:-7200000}
+      - SKY_JWT_ADMIN_TOKEN_NAME=${JWT_ADMIN_TOKEN_NAME:-token}
+
+      - SKY_JWT_USER_SECRET_KEY=${JWT_USER_KEY}
+      - SKY_JWT_USER_TTL=${JWT_USER_TTL:-7200000}
+      - SKY_JWT_USER_TOKEN_NAME=${JWT_USER_TOKEN_NAME:-authentication}
+
+      - SKY_UPLOAD_PATH=${SKY_UPLOAD_PATH:-/app/data/img_data/}
+      - SKY_UPLOAD_ACCESS_URL_PREFIX=${UPLOAD_ACCESS_URL_PREFIX:-/admin/common/upload/}
+
+      - SKY_WECHAT_APPID=${WECHAT_APPID}
+      - SKY_WECHAT_SECRET=${WECHAT_SECRET}
+
+volumes:
+  sky_redis_data:
+    driver: local

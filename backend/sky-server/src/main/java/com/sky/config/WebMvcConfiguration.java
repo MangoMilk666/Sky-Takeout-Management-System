@@ -5,6 +5,7 @@ import com.sky.interceptor.JwtTokenUserInterceptor;
 import com.sky.json.JacksonObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -28,6 +29,9 @@ import java.util.List;
 @Configuration
 @Slf4j
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
+
+    @Value("${sky.upload-path:/app/data/img_data/}")
+    private String uploadPath;
 
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor; //员工校验拦截器
@@ -112,7 +116,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         // 这里的路径要和Service 里的 accessUrl 匹配
         // 访问地址设置为 /admin/common/upload/xxx.jpg
         registry.addResourceHandler("/admin/common/upload/**")
-                .addResourceLocations("file:/Users/henrysang/Documents/Sky-Takeout/data/img_data/");
+                .addResourceLocations("file:" + (uploadPath.endsWith("/") ? uploadPath : (uploadPath + "/")));
     }
 
     /**

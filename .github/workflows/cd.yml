@@ -1,0 +1,87 @@
+name: CD
+
+on:
+  push:
+    branches: [prod]
+
+concurrency:
+  group: smart-dining-cd
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      RELEASE_ID: ${{ github.sha }}
+      DEPLOY_BASE_DIR: ${{ vars.DEPLOY_BASE_DIR || '/var/www/smart-dining' }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build backend jar
+        run: |
+          mvn -f backend/pom.xml -pl sky-server -am clean package -DskipTests
+          cp backend/sky-server/target/sky-server-*.jar backend/app.jar
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/smartdining-admin-react/package-lock.json
+
+      - name: Build admin frontend
+        working-directory: frontend/smartdining-admin-react
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare release bundle
+        run: |
+          rm -rf release_bundle
+          mkdir -p release_bundle/backend release_bundle/frontend
+
+          cp docker-compose.prod.yml release_bundle/docker-compose.prod.yml
+          cp backend/Dockerfile release_bundle/backend/Dockerfile
+          cp backend/app.jar release_bundle/backend/app.jar
+
+          cp -R frontend/smartdining-admin-react/dist/. release_bundle/frontend/
+
+      - name: Start ssh-agent
+        run: |
+          mkdir -p ~/.ssh
+          eval "$(ssh-agent -s)"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
+
+      - name: Add known hosts
+        run: |
+          SSH_PORT="${SSH_PORT:-22}"
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Upload release and scripts
+        run: |
+          SSH_PORT="${SSH_PORT:-22}"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$DEPLOY_BASE_DIR/releases/$RELEASE_ID' '$DEPLOY_BASE_DIR/scripts' '$DEPLOY_BASE_DIR/shared'"
+
+          rsync -az --delete -e "ssh -p $SSH_PORT" release_bundle/ "$SSH_USER@$SSH_HOST:$DEPLOY_BASE_DIR/releases/$RELEASE_ID/"
+
+          rsync -az -e "ssh -p $SSH_PORT" scripts/deploy_smart_dining.sh "$SSH_USER@$SSH_HOST:$DEPLOY_BASE_DIR/scripts/deploy_smart_dining.sh"
+          rsync -az -e "ssh -p $SSH_PORT" scripts/smart-dining.conf "$SSH_USER@$SSH_HOST:$DEPLOY_BASE_DIR/scripts/smart-dining.conf"
+
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "chmod +x '$DEPLOY_BASE_DIR/scripts/deploy_smart_dining.sh'"
+
+      - name: Deploy on host
+        run: |
+          SSH_PORT="${SSH_PORT:-22}"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "bash '$DEPLOY_BASE_DIR/scripts/deploy_smart_dining.sh' '$RELEASE_ID'"
