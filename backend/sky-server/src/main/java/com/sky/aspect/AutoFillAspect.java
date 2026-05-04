@@ -49,6 +49,7 @@ public class AutoFillAspect {
 
         // 根据不同操作类型，对不同属性通过反射赋值
         if (operationType == OperationType.INSERT) {
+            // 动态调用实体的 setter 方法
             try {
                 Method setCreateTime =  entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class);
                 Method setUpdateTime =  entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);

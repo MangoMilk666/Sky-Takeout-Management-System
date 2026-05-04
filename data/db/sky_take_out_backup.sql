@@ -11,7 +11,7 @@
  Target Server Version : 80034 (8.0.34)
  File Encoding         : 65001
 
- Date: 13/04/2026 15:56:59
+ Date: 14/04/2026 01:07:22
 */
 
 SET NAMES utf8mb4;
@@ -80,7 +80,6 @@ INSERT INTO `category` (`id`, `type`, `name`, `sort`, `status`, `create_time`, `
 INSERT INTO `category` (`id`, `type`, `name`, `sort`, `status`, `create_time`, `update_time`, `create_user`, `update_user`) VALUES (20, 1, '水煮鱼', 8, 1, '2022-06-09 22:22:29', '2022-06-09 22:23:45', 1, 1);
 INSERT INTO `category` (`id`, `type`, `name`, `sort`, `status`, `create_time`, `update_time`, `create_user`, `update_user`) VALUES (21, 1, '汤类', 11, 1, '2022-06-10 10:51:47', '2022-06-10 10:51:47', 1, 1);
 INSERT INTO `category` (`id`, `type`, `name`, `sort`, `status`, `create_time`, `update_time`, `create_user`, `update_user`) VALUES (23, 1, '西式简餐', 14, 1, '2026-02-01 15:30:39', '2026-02-01 15:31:34', 1, 1);
-INSERT INTO `category` (`id`, `type`, `name`, `sort`, `status`, `create_time`, `update_time`, `create_user`, `update_user`) VALUES (24, 1, '测试分类', 1, 1, '2026-04-12 15:03:25', '2026-04-12 15:03:32', 1, 1);
 COMMIT;
 
 -- ----------------------------
@@ -100,13 +99,14 @@ CREATE TABLE `coupon` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `idx_begin_end_time` (`begin_time`,`end_time`) COMMENT '有效期索引'
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='优惠券定义表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='优惠券定义表';
 
 -- ----------------------------
 -- Records of coupon
 -- ----------------------------
 BEGIN;
-INSERT INTO `coupon` (`id`, `name`, `discount_type`, `discount`, `total_count`, `remained_count`, `begin_time`, `end_time`, `create_time`, `update_time`) VALUES (1, '测试八折券', 1, 0.80, 3, 3, '2026-04-13 00:00:00', '2026-04-16 23:59:59', '2026-04-13 11:47:03', '2026-04-13 11:47:03');
+INSERT INTO `coupon` (`id`, `name`, `discount_type`, `discount`, `total_count`, `remained_count`, `begin_time`, `end_time`, `create_time`, `update_time`) VALUES (1, '测试八折券', 1, 0.80, 3, 2, '2026-04-13 00:00:00', '2026-04-16 23:59:59', '2026-04-13 11:47:03', '2026-04-13 18:36:07');
+INSERT INTO `coupon` (`id`, `name`, `discount_type`, `discount`, `total_count`, `remained_count`, `begin_time`, `end_time`, `create_time`, `update_time`) VALUES (2, '测试直减券', 2, 10.00, 3, 2, '2026-04-13 00:00:00', '2026-04-16 23:00:00', '2026-04-13 16:06:50', '2026-04-13 18:36:03');
 COMMIT;
 
 -- ----------------------------
@@ -276,7 +276,7 @@ CREATE TABLE `order_detail` (
   `number` int NOT NULL DEFAULT '1' COMMENT '数量',
   `amount` decimal(10,2) NOT NULL COMMENT '金额',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='订单明细表';
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='订单明细表';
 
 -- ----------------------------
 -- Records of order_detail
@@ -307,6 +307,11 @@ INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setme
 INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setmeal_id`, `dish_flavor`, `number`, `amount`) VALUES (29, '米饭', 'http://localhost:8080/admin/common/upload/af7eaf4b899f48c3b84935231ecacb5d.jpg', 12, 49, NULL, NULL, 2, 2.00);
 INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setmeal_id`, `dish_flavor`, `number`, `amount`) VALUES (30, '商务单人餐', 'http://localhost:8080/admin/common/upload/edd311068e5446538998bc9048cdfad7.jpg', 13, NULL, 32, NULL, 1, 29.90);
 INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setmeal_id`, `dish_flavor`, `number`, `amount`) VALUES (31, '商务单人餐', 'http://localhost:8080/admin/common/upload/edd311068e5446538998bc9048cdfad7.jpg', 14, NULL, 32, NULL, 1, 29.90);
+INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setmeal_id`, `dish_flavor`, `number`, `amount`) VALUES (32, '梅菜扣肉', 'http://localhost:8080/admin/common/upload/09b27f1f39604a08afef33652b904920.jpg', 15, 60, NULL, '不要香菜', 1, 58.00);
+INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setmeal_id`, `dish_flavor`, `number`, `amount`) VALUES (33, '清蒸鲈鱼', 'http://localhost:8080/admin/common/upload/498f6c6cb2044bf682a402f6fa21d6d1.jpg', 15, 58, NULL, NULL, 1, 98.00);
+INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setmeal_id`, `dish_flavor`, `number`, `amount`) VALUES (34, '经典酸菜鮰鱼', 'http://localhost:8080/admin/common/upload/c592c9143d21406cb9f4dc21c67d0652.jpg', 16, 52, NULL, '不要葱,重辣', 1, 66.00);
+INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setmeal_id`, `dish_flavor`, `number`, `amount`) VALUES (35, '江团鱼2斤', 'http://localhost:8080/admin/common/upload/aff37674ad27409d9597995ebe6af000.jpg', 16, 66, NULL, '重辣', 1, 109.00);
+INSERT INTO `order_detail` (`id`, `name`, `image`, `order_id`, `dish_id`, `setmeal_id`, `dish_flavor`, `number`, `amount`) VALUES (36, '江团鱼2斤', 'http://localhost:8080/admin/common/upload/aff37674ad27409d9597995ebe6af000.jpg', 17, 66, NULL, '不辣', 1, 109.00);
 COMMIT;
 
 -- ----------------------------
@@ -342,7 +347,7 @@ CREATE TABLE `orders` (
   `tableware_status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '餐具数量状态  1按餐量提供  0选择具体数量',
   `amount` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '实付金额',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='订单表';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='订单表';
 
 -- ----------------------------
 -- Records of orders
@@ -358,6 +363,9 @@ INSERT INTO `orders` (`id`, `number`, `status`, `user_id`, `address_book_id`, `o
 INSERT INTO `orders` (`id`, `number`, `status`, `user_id`, `address_book_id`, `order_time`, `checkout_time`, `pay_method`, `pay_status`, `original_amount`, `coupon_id`, `discount_amount`, `remark`, `phone`, `address`, `user_name`, `consignee`, `cancel_reason`, `rejection_reason`, `cancel_time`, `estimated_delivery_time`, `delivery_status`, `delivery_time`, `pack_amount`, `tableware_number`, `tableware_status`, `amount`) VALUES (12, '1774166847693', 4, 4, 3, '2026-03-22 16:07:28', '2026-03-22 16:07:30', 1, 1, 120.00, NULL, 120.00, '测试111', '13089011234', '北京大学竹园1舍205', NULL, '陈曦', NULL, NULL, NULL, '2026-03-22 17:07:00', 0, NULL, 4, 2, 0, 120.00);
 INSERT INTO `orders` (`id`, `number`, `status`, `user_id`, `address_book_id`, `order_time`, `checkout_time`, `pay_method`, `pay_status`, `original_amount`, `coupon_id`, `discount_amount`, `remark`, `phone`, `address`, `user_name`, `consignee`, `cancel_reason`, `rejection_reason`, `cancel_time`, `estimated_delivery_time`, `delivery_status`, `delivery_time`, `pack_amount`, `tableware_number`, `tableware_status`, `amount`) VALUES (13, '1774167002457', 4, 4, 2, '2026-03-22 16:10:02', '2026-03-22 16:10:05', 1, 1, 36.90, NULL, 36.90, '重辣！！！', '15857991234', '杭州大学清溪1-501', NULL, 'SS', NULL, NULL, NULL, '2026-03-22 20:00:00', 0, NULL, 1, 1, 0, 36.90);
 INSERT INTO `orders` (`id`, `number`, `status`, `user_id`, `address_book_id`, `order_time`, `checkout_time`, `pay_method`, `pay_status`, `original_amount`, `coupon_id`, `discount_amount`, `remark`, `phone`, `address`, `user_name`, `consignee`, `cancel_reason`, `rejection_reason`, `cancel_time`, `estimated_delivery_time`, `delivery_status`, `delivery_time`, `pack_amount`, `tableware_number`, `tableware_status`, `amount`) VALUES (14, '1774167707205', 4, 4, 2, '2026-03-22 16:21:47', '2026-03-22 16:21:49', 1, 1, 36.90, NULL, 36.90, '', '15857991234', '杭州大学清溪1-501', NULL, 'SS', NULL, NULL, NULL, '2026-03-22 17:21:00', 0, NULL, 1, 0, 0, 36.90);
+INSERT INTO `orders` (`id`, `number`, `status`, `user_id`, `address_book_id`, `order_time`, `checkout_time`, `pay_method`, `pay_status`, `original_amount`, `coupon_id`, `discount_amount`, `remark`, `phone`, `address`, `user_name`, `consignee`, `cancel_reason`, `rejection_reason`, `cancel_time`, `estimated_delivery_time`, `delivery_status`, `delivery_time`, `pack_amount`, `tableware_number`, `tableware_status`, `amount`) VALUES (15, '1776070073934', 1, 4, 3, '2026-04-13 16:47:54', NULL, 1, 0, 164.00, NULL, 164.00, '', '13089011234', '北京大学竹园1舍205', NULL, '陈曦', NULL, NULL, NULL, '2026-04-13 17:47:00', 0, NULL, 2, 0, 0, 164.00);
+INSERT INTO `orders` (`id`, `number`, `status`, `user_id`, `address_book_id`, `order_time`, `checkout_time`, `pay_method`, `pay_status`, `original_amount`, `coupon_id`, `discount_amount`, `remark`, `phone`, `address`, `user_name`, `consignee`, `cancel_reason`, `rejection_reason`, `cancel_time`, `estimated_delivery_time`, `delivery_status`, `delivery_time`, `pack_amount`, `tableware_number`, `tableware_status`, `amount`) VALUES (16, '1776072499560', 2, 4, 3, '2026-04-13 17:28:20', '2026-04-13 17:28:22', 1, 1, 183.00, NULL, 183.00, '', '13089011234', '北京大学竹园1舍205', NULL, '陈曦', NULL, NULL, NULL, '2026-04-13 18:28:00', 0, NULL, 2, 0, 0, 183.00);
+INSERT INTO `orders` (`id`, `number`, `status`, `user_id`, `address_book_id`, `order_time`, `checkout_time`, `pay_method`, `pay_status`, `original_amount`, `coupon_id`, `discount_amount`, `remark`, `phone`, `address`, `user_name`, `consignee`, `cancel_reason`, `rejection_reason`, `cancel_time`, `estimated_delivery_time`, `delivery_status`, `delivery_time`, `pack_amount`, `tableware_number`, `tableware_status`, `amount`) VALUES (17, '1776077053027', 2, 4, 3, '2026-04-13 18:44:13', '2026-04-13 18:44:15', 1, 1, 92.80, 1, 74.24, '', '13089011234', '北京大学竹园1舍205', NULL, '陈曦', NULL, NULL, NULL, '2026-04-13 19:43:00', 0, NULL, 1, 0, 0, 74.24);
 COMMIT;
 
 -- ----------------------------
@@ -439,7 +447,7 @@ CREATE TABLE `shopping_cart` (
   `amount` decimal(10,2) NOT NULL COMMENT '金额',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='购物车';
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='购物车';
 
 -- ----------------------------
 -- Records of shopping_cart
@@ -486,12 +494,14 @@ CREATE TABLE `user_coupon` (
   UNIQUE KEY `uk_request_id` (`request_id`) USING BTREE COMMENT '幂等唯一索引',
   KEY `idx_user_id` (`user_id`) USING BTREE COMMENT '用户查询索引',
   KEY `idx_coupon_id` (`coupon_id`) USING BTREE COMMENT '优惠券查询索引'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户领券记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户领券记录表';
 
 -- ----------------------------
 -- Records of user_coupon
 -- ----------------------------
 BEGIN;
+INSERT INTO `user_coupon` (`id`, `user_id`, `coupon_id`, `status`, `used_time`, `request_id`, `create_time`) VALUES (1, 4, 2, 0, NULL, '1776076563811_3a16c2e3b164b', '2026-04-13 18:36:04');
+INSERT INTO `user_coupon` (`id`, `user_id`, `coupon_id`, `status`, `used_time`, `request_id`, `create_time`) VALUES (2, 4, 1, 1, '2026-04-13 18:44:13', '1776076566847_127e2571bc78c', '2026-04-13 18:36:07');
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

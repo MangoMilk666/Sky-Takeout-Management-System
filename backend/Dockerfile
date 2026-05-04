@@ -1,8 +1,9 @@
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:17-jre
+
 WORKDIR /app
-# 修改这一行，直接拷贝 改名后的 app.jar
-COPY app.jar app.jar
-#COPY sky-server-1.0-SNAPSHOT.jar app.jar
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
+
+COPY app.jar /app/app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

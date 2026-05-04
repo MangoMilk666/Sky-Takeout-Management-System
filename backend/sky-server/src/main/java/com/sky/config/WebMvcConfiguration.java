@@ -5,6 +5,7 @@ import com.sky.interceptor.JwtTokenUserInterceptor;
 import com.sky.json.JacksonObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -28,6 +29,9 @@ import java.util.List;
 @Configuration
 @Slf4j
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
+
+    @Value("${sky.upload-path:/app/data/img_data/}")
+    private String uploadPath;
 
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor; //员工校验拦截器
@@ -108,11 +112,11 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
 
-        // =============访问服务器端docker容器内的图片路径=============
+        // =============访问本地存储图片=============
         // 这里的路径要和Service 里的 accessUrl 匹配
         // 访问地址设置为 /admin/common/upload/xxx.jpg
         registry.addResourceHandler("/admin/common/upload/**")
-                .addResourceLocations("file:/app/data/img_data/");
+                .addResourceLocations("file:" + (uploadPath.endsWith("/") ? uploadPath : (uploadPath + "/")));
     }
 
     /**
@@ -130,5 +134,17 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         converters.add(0,converter);
     }
 
+    /**
+     * 用于联调测试
+     * @param registry
+     */
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:5173") // 允许你的 React 访问
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
 
 }
