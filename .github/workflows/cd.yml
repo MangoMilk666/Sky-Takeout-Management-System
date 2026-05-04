@@ -72,7 +72,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
+          port: ${{ secrets.SSH_PORT || 22 }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
           script: |
@@ -91,13 +91,83 @@ jobs:
 
       - name: Deploy on host
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_BASE_DIR: ${{ env.DEPLOY_BASE_DIR }}
+          APP_HOST_PORT: ${{ vars.APP_HOST_PORT }}
+          SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
+          TZ: ${{ vars.TZ }}
+          UPLOAD_PATH_HOST: ${{ vars.UPLOAD_PATH_HOST }}
+          SKY_UPLOAD_PATH: ${{ vars.SKY_UPLOAD_PATH }}
+          UPLOAD_ACCESS_URL_PREFIX: ${{ vars.UPLOAD_ACCESS_URL_PREFIX }}
+          SKY_DATASOURCE_DRIVER_CLASS_NAME: ${{ vars.SKY_DATASOURCE_DRIVER_CLASS_NAME }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SKY_REDIS_DATABASE: ${{ vars.SKY_REDIS_DATABASE }}
+          JWT_ADMIN_KEY: ${{ secrets.JWT_ADMIN_KEY }}
+          JWT_USER_KEY: ${{ secrets.JWT_USER_KEY }}
+          JWT_ADMIN_TTL: ${{ vars.JWT_ADMIN_TTL }}
+          JWT_ADMIN_TOKEN_NAME: ${{ vars.JWT_ADMIN_TOKEN_NAME }}
+          JWT_USER_TTL: ${{ vars.JWT_USER_TTL }}
+          JWT_USER_TOKEN_NAME: ${{ vars.JWT_USER_TOKEN_NAME }}
+          WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
+          WECHAT_SECRET: ${{ secrets.WECHAT_SECRET }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
+          port: ${{ secrets.SSH_PORT || 22 }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
+          envs: DEPLOY_BASE_DIR,APP_HOST_PORT,SPRING_PROFILES_ACTIVE,TZ,UPLOAD_PATH_HOST,SKY_UPLOAD_PATH,UPLOAD_ACCESS_URL_PREFIX,SKY_DATASOURCE_DRIVER_CLASS_NAME,DB_HOST,DB_PORT,DB_NAME,DB_USER,DB_PASSWORD,REDIS_PASSWORD,SKY_REDIS_DATABASE,JWT_ADMIN_KEY,JWT_USER_KEY,JWT_ADMIN_TTL,JWT_ADMIN_TOKEN_NAME,JWT_USER_TTL,JWT_USER_TOKEN_NAME,WECHAT_APPID,WECHAT_SECRET
           script: |
             set -euo pipefail
+
+            escape_squotes() {
+              printf "%s" "${1:-}" | sed "s/'/'\"'\"'/g"
+            }
+
+            ENV_DIR="${DEPLOY_BASE_DIR}/shared"
+            ENV_FILE="${ENV_DIR}/.env.prod"
+            TMP_FILE="${ENV_FILE}.tmp"
+
+            mkdir -p "$ENV_DIR"
+            umask 077
+
+            {
+              echo "DEPLOY_BASE_DIR='$(escape_squotes "${DEPLOY_BASE_DIR:-}")'"
+              echo "APP_HOST_PORT='$(escape_squotes "${APP_HOST_PORT:-}")'"
+              echo "SPRING_PROFILES_ACTIVE='$(escape_squotes "${SPRING_PROFILES_ACTIVE:-}")'"
+              echo "TZ='$(escape_squotes "${TZ:-}")'"
+              echo "UPLOAD_PATH_HOST='$(escape_squotes "${UPLOAD_PATH_HOST:-}")'"
+              echo "SKY_UPLOAD_PATH='$(escape_squotes "${SKY_UPLOAD_PATH:-}")'"
+              echo "UPLOAD_ACCESS_URL_PREFIX='$(escape_squotes "${UPLOAD_ACCESS_URL_PREFIX:-}")'"
+              echo "SKY_DATASOURCE_DRIVER_CLASS_NAME='$(escape_squotes "${SKY_DATASOURCE_DRIVER_CLASS_NAME:-}")'"
+
+              echo "DB_HOST='$(escape_squotes "${DB_HOST:-}")'"
+              echo "DB_PORT='$(escape_squotes "${DB_PORT:-}")'"
+              echo "DB_NAME='$(escape_squotes "${DB_NAME:-}")'"
+              echo "DB_USER='$(escape_squotes "${DB_USER:-}")'"
+              echo "DB_PASSWORD='$(escape_squotes "${DB_PASSWORD:-}")'"
+
+              echo "REDIS_PASSWORD='$(escape_squotes "${REDIS_PASSWORD:-}")'"
+              echo "SKY_REDIS_DATABASE='$(escape_squotes "${SKY_REDIS_DATABASE:-}")'"
+
+              echo "JWT_ADMIN_KEY='$(escape_squotes "${JWT_ADMIN_KEY:-}")'"
+              echo "JWT_USER_KEY='$(escape_squotes "${JWT_USER_KEY:-}")'"
+              echo "JWT_ADMIN_TTL='$(escape_squotes "${JWT_ADMIN_TTL:-}")'"
+              echo "JWT_ADMIN_TOKEN_NAME='$(escape_squotes "${JWT_ADMIN_TOKEN_NAME:-}")'"
+              echo "JWT_USER_TTL='$(escape_squotes "${JWT_USER_TTL:-}")'"
+              echo "JWT_USER_TOKEN_NAME='$(escape_squotes "${JWT_USER_TOKEN_NAME:-}")'"
+
+              echo "WECHAT_APPID='$(escape_squotes "${WECHAT_APPID:-}")'"
+              echo "WECHAT_SECRET='$(escape_squotes "${WECHAT_SECRET:-}")'"
+            } > "$TMP_FILE"
+
+            mv -f "$TMP_FILE" "$ENV_FILE"
+            chmod 600 "$ENV_FILE" || true
+
             chmod +x "${{ env.DEPLOY_BASE_DIR }}/scripts/deploy_smart_dining.sh"
             bash "${{ env.DEPLOY_BASE_DIR }}/scripts/deploy_smart_dining.sh" "${{ env.RELEASE_ID }}"
