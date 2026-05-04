@@ -30,6 +30,26 @@ HEALTHCHECK_URL="${HEALTHCHECK_URL:-http://localhost:8081/api/health}"
 HEALTHCHECK_WAIT_SECONDS="${HEALTHCHECK_WAIT_SECONDS:-10}"
 KEEP_RELEASES="${KEEP_RELEASES:-5}"
 
+remove_container_if_exists() {
+  local name="$1"
+  if docker ps -a --format '{{.Names}}' | grep -Fxq "$name"; then
+    log WARN "Removing conflicting container: $name"
+    docker rm -f "$name" >/dev/null
+  fi
+}
+
+compose_down_quietly() {
+  local compose_file="$1"
+  if [[ -f "$compose_file" ]]; then
+    docker compose -f "$compose_file" down --remove-orphans >/dev/null 2>&1 || true
+  fi
+}
+
+compose_up() {
+  local compose_file="$1"
+  docker compose -f "$compose_file" up -d --build --force-recreate --remove-orphans
+}
+
 if [[ ! -d "$RELEASE_DIR" ]]; then
   die "Release directory not found: $RELEASE_DIR"
 fi
@@ -71,7 +91,11 @@ rollback() {
       prev_compose="docker-compose.yml"
     fi
     if [[ -f "$CURRENT_DIR/$prev_compose" ]]; then
-      (cd "$CURRENT_DIR" && docker compose -f "$prev_compose" up -d --build --force-recreate) || true
+      log INFO "Rollback: restarting stack"
+      compose_down_quietly "$CURRENT_DIR/$prev_compose"
+      remove_container_if_exists "sky-redis"
+      remove_container_if_exists "sky-takeout-app"
+      (cd "$CURRENT_DIR" && compose_up "$prev_compose") || true
     fi
   else
     log WARN "Rollback skipped: previous current target not found"
@@ -96,7 +120,14 @@ fi
 
 log INFO "Step 3/5: Deploying with docker compose"
 cd "$CURRENT_DIR"
-docker compose -f "$COMPOSE_FILE_REL" up -d --build --force-recreate
+
+log INFO "Cleaning existing stack (containers only, keep volumes)"
+compose_down_quietly "$CURRENT_DIR/$COMPOSE_FILE_REL"
+
+remove_container_if_exists "sky-redis"
+remove_container_if_exists "sky-takeout-app"
+
+compose_up "$COMPOSE_FILE_REL"
 
 log INFO "Step 4/5: Health check"
 log INFO "Waiting ${HEALTHCHECK_WAIT_SECONDS}s before checking: $HEALTHCHECK_URL"
