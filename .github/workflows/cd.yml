@@ -16,7 +16,8 @@ jobs:
       RELEASE_ID: ${{ github.sha }}
       DEPLOY_BASE_DIR: ${{ vars.DEPLOY_BASE_DIR || '/var/www/smart-dining' }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
-      SSH_USER: ${{ secrets.SSH_USER }}
+      # SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_USER: dev
       SSH_PORT: ${{ secrets.SSH_PORT }}
 
     steps:
