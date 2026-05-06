@@ -9,7 +9,7 @@ import { logout } from '@/lib/auth/auth'
 import { getUsername } from '@/lib/auth/cookies'
 import { isRequestCanceled } from '@/lib/http/isCanceled'
 import { message } from '@/lib/ui/message'
-import logo from '@/assets/smart-dining-logo.png'
+import { LogoBadge } from '@/components/logo/LogoBadge'
 
 type MenuItem = {
   to: string
@@ -102,15 +102,11 @@ export function RootLayout() {
           <div className="logo">
             {!sidebarOpened ? (
               <div className="sidebar-logo-mini">
-                <img src={logo} style={{ width: 36, height: 36, objectFit: 'contain' }} alt="" />
+                <LogoBadge mini />
               </div>
             ) : (
-              <div className="sidebar-logo">
-                <img
-                  src={logo}
-                  style={{ height: 40, width: 'auto', maxWidth: 175, objectFit: 'contain' }}
-                  alt=""
-                />
+              <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LogoBadge style={{ maxWidth: 165 }} />
               </div>
             )}
           </div>

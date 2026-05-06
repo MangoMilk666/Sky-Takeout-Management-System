@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { loginWithPassword } from '@/lib/auth/auth'
 import { usePageTitle } from '@/lib/ui/usePageTitle'
 import loginBanner from '@/assets/login/login-l.png'
-import logo from '@/assets/smart-dining-logo.png'
+import { LogoBadge } from '@/components/logo/LogoBadge'
 import './login.scss'
 
 export function LoginPage() {
@@ -55,11 +55,7 @@ export function LoginPage() {
             }}
           >
             <div className="login-form-title">
-              <img
-                src={logo}
-                style={{ height: 160, width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }}
-                alt=""
-              />
+              <LogoBadge style={{ maxWidth: 260, margin: '0 auto 8px' }} />
             </div>
 
             <div className={`el-form-item ${usernameError ? 'is-error' : ''}`}>
