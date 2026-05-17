@@ -166,7 +166,7 @@ jobs:
               echo "WECHAT_APPID='$(escape_squotes "${WECHAT_APPID:-}")'"
               echo "WECHAT_SECRET='$(escape_squotes "${WECHAT_SECRET:-}")'"
 
-              echo "SKY_CORS_ALLOWED_ORIGINS='$(escape_squotes "${SKY_CORS_ALLOWED_ORIGINS:-}')'"
+              echo "SKY_CORS_ALLOWED_ORIGINS='$(escape_squotes "${SKY_CORS_ALLOWED_ORIGINS:-}")'"
             } > "$TMP_FILE"
 
             mv -f "$TMP_FILE" "$ENV_FILE"
