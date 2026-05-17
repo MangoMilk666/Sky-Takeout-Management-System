@@ -33,6 +33,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     @Value("${sky.upload-path:/app/data/img_data/}")
     private String uploadPath;
 
+    @Value("${sky.cors.allowed-origins:http://localhost:5173}")
+    private String corsAllowedOrigins;
+
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor; //员工校验拦截器
     @Autowired
@@ -141,7 +144,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // 允许你的 React 访问
+                // 从配置文件读取 corsAllowedOrigins，支持逗号分隔多个域名
+                .allowedOrigins(corsAllowedOrigins.split(","))
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

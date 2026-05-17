@@ -32,7 +32,7 @@ public class SetmealController {
     @GetMapping("/list")
     @ApiOperation("根据分类id查询套餐")
     @Cacheable(cacheNames = "setmealCache", key = "#categoryId") //动态计算出key: setmealCache::id_value
-    // 缓存的value即为方法的返回结果
+    // 注解驱动，声明式缓存，缓存的value即为方法的返回结果
     public Result<List<Setmeal>> list(Long categoryId) {
         Setmeal setmeal = new Setmeal();
         setmeal.setCategoryId(categoryId);

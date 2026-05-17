@@ -55,3 +55,7 @@ sky:
   wechat:
     appid: ${sky.wechat.appid}
     secret: ${sky.wechat.secret}
+  cors:
+    # 跨域配置，由 SKY_CORS_ALLOWED_ORIGINS 环境变量注入
+    # 缺失时自动用localhost:5173
+    allowed-origins: ${SKY_CORS_ALLOWED_ORIGINS:http://localhost:5173}

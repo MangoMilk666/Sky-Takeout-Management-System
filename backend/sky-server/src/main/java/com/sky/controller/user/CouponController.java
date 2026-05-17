@@ -31,7 +31,7 @@ public class CouponController {
     }
 
     @GetMapping("/available")
-    @ApiOperation("可领取优惠券列表")
+    @ApiOperation("查看可领取优惠券列表")
     public Result<List<Coupon>> available() {
         return Result.success(couponService.listAvailable());
     }

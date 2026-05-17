@@ -25,7 +25,7 @@ public class CouponController {
     }
 
     @GetMapping("/list")
-    @ApiOperation("优惠券列表")
+    @ApiOperation("查看优惠券列表")
     public Result<Object> list() {
         return Result.success(couponMapper.listAll());
     }

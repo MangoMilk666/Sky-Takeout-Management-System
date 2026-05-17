@@ -82,6 +82,7 @@ public class DishController {
         log.info("菜品待修改为:{}", dishDTO);
         dishService.updateDishWithFlavors(dishDTO);
         // 因为修改的数据可能涉及多类数据（菜品/菜品分类）
+        // update的开销远大于delete
         // 所以也清除所有的菜品缓存数据，即所有以dish_开头的keys
         cleanCache("dish_*");
         return Result.success();

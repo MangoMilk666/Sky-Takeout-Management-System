@@ -61,6 +61,8 @@ services:
 
       - SKY_WECHAT_APPID=${WECHAT_APPID}
       - SKY_WECHAT_SECRET=${WECHAT_SECRET}
+      # 透传 SKY_CORS_ALLOWED_ORIGINS 环境变量到容器，设定允许访问的前端的源
+      - SKY_CORS_ALLOWED_ORIGINS=${SKY_CORS_ALLOWED_ORIGINS:-http://localhost:5173}
 
 volumes:
   sky_redis_data:

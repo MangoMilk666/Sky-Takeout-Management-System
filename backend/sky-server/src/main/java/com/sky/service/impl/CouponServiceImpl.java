@@ -88,7 +88,7 @@ public class CouponServiceImpl implements CouponService {
 
         String stockKey = STOCK_KEY_PREFIX + coupon.getId();
         String userSetKey = USER_SET_KEY_PREFIX + coupon.getId();
-        // 写入库存
+        // 写入redis库存
         stringRedisTemplate.opsForValue().set(stockKey, String.valueOf(coupon.getTotalCount()));
         stringRedisTemplate.delete(userSetKey);
         return coupon.getId();
@@ -140,7 +140,7 @@ public class CouponServiceImpl implements CouponService {
         String msg = JSON.toJSONString(new ClaimMsg(couponId, userId, requestId, System.currentTimeMillis()));
         // 采用 生产者-消费者模型。后端只负责通过 LPUSH 把任务丢进队列，然后立即返回给前端“抢券成功”的结果。
         // 真正的数据库写入（持久化）由另一个异步监听器负责，实现流量削峰。
-        // 有另外的监听器在不断 BRPOP 这个 List，然后执行 userCouponMapper.insert 将数据存入 MySQL。
+        // 有另外的监听器在不断 RPOP 这个 List，然后执行 userCouponMapper.insert 将数据存入 MySQL。
         stringRedisTemplate.opsForList().leftPush(CLAIM_QUEUE_KEY, msg);
         return 1L;
     }
