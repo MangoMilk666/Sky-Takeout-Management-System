@@ -161,17 +161,33 @@ public class OrderServiceImpl implements OrderService {
         Long userId = BaseContext.getCurrentId();
         User user = userMapper.getById(userId);
 
-        //调用微信支付接口，生成预支付交易单
+        // pay方法封装调用了微信支付接口，生成预支付交易单后的返回结果
+        // 微信统一下单成功，返回二次签名后供微信支付正式调用
+        // 微信统一下单失败，返回返回微信官方接口的错误响应
         JSONObject jsonObject = weChatPayUtil.pay(
                 ordersPaymentDTO.getOrderNumber(), //商户订单号
                 new BigDecimal(0.01), //支付金额，单位 元
-                "苍穹外卖订单", //商品描述
+                "Smart-Dining平台订单", //商品描述
                 user.getOpenid() //微信用户的openid
         );
 
+         // 返回结果如果是
+         // {
+         //   "code": "ORDERPAID",
+         //   "message": "订单已支付"
+         // }
         if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
             throw new OrderBusinessException("该订单已支付");
         }
+
+        /* {
+            "code": "INVALID_REQUEST",
+                "message": "参数错误"
+        }*/
+        if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("INVALID_REQUEST")) {
+            throw new OrderBusinessException("订单参数错误");
+        }
+
 
         OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
         vo.setPackageStr(jsonObject.getString("package"));

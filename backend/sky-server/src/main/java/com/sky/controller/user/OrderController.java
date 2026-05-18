@@ -7,6 +7,7 @@ import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderHistoryVO;
+import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,8 +37,7 @@ public class OrderController {
      * @param ordersPaymentDTO
      * @return
      */
-    // 正确逻辑（暂时跳过）
-    /**
+    // 正确逻辑（测试暂时跳过）
     @PutMapping("/payment")
     @ApiOperation("订单支付")
     public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
@@ -45,7 +45,7 @@ public class OrderController {
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         log.info("生成预支付交易单：{}", orderPaymentVO);
         return Result.success(orderPaymentVO);
-    }*/
+    }
 
     /**
      * 订单支付
@@ -54,9 +54,9 @@ public class OrderController {
      * @return
      */
     // 测试使用逻辑
-    @PutMapping("/payment")
+    @PutMapping("/payment-skip")
     @ApiOperation("订单支付")
-    public Result<String> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
+    public Result<String> paymentSkip(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
         log.info("订单支付：{}", ordersPaymentDTO);
         String estimatedDeliveryTime = orderService.getEstimatedTimeForTest(ordersPaymentDTO);
         log.info("支付完成!");

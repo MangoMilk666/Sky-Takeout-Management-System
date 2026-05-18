@@ -134,22 +134,27 @@ public class WeChatPayUtil {
     private String jsapi(String orderNum, BigDecimal total, String description, String openid) throws Exception {
         // 请求体中包含的信息
         JSONObject jsonObject = new JSONObject();
+        // 小程序appid
         jsonObject.put("appid", weChatProperties.getAppid());
+        // 商户id
         jsonObject.put("mchid", weChatProperties.getMchid());
         jsonObject.put("description", description);
         jsonObject.put("out_trade_no", orderNum);
+        // 支付成功的回调地址
         jsonObject.put("notify_url", weChatProperties.getNotifyUrl());
 
+        // amount包含付款的金额和币种
         JSONObject amount = new JSONObject();
         amount.put("total", total.multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).intValue());
         amount.put("currency", "CNY");
 
         jsonObject.put("amount", amount);
-
+        // payer包裹用户的微信唯一id
         JSONObject payer = new JSONObject();
         payer.put("openid", openid);
 
         jsonObject.put("payer", payer);
+
         // 将其序列化为字符串，调用JSAPI预下单
         String body = jsonObject.toJSONString();
         return post(JSAPI, body);
@@ -170,12 +175,14 @@ public class WeChatPayUtil {
         //解析返回结果
         JSONObject jsonObject = JSON.parseObject(bodyAsString);
         System.out.println(jsonObject);
-        // 获得的预支付标识
+        // 获得的预支付标识：很长的字符串，带有效期
         String prepayId = jsonObject.getString("prepay_id");
 
-        // 封装返回给用户端的支付数据
+        // 如果微信统一下单成功，封装返回给用户端的支付数据
         if (prepayId != null) {
+            // 时间戳
             String timeStamp = String.valueOf(System.currentTimeMillis() / 1000);
+            // 随机字符串
             String nonceStr = RandomStringUtils.randomNumeric(32);
             ArrayList<Object> list = new ArrayList<>();
             list.add(weChatProperties.getAppid());
@@ -183,7 +190,9 @@ public class WeChatPayUtil {
             // 一次性随机的字符串，防止被抓包篡改
             list.add(nonceStr);
             list.add("prepay_id=" + prepayId);
-            // 二次签名，调起支付需要重新签名，目的是保证传输安全， 防止 prepay_id 被劫持篡改
+
+            // 利用商家的密钥和SHA256withRSA算法进行二次签名
+            // 调起支付需要重新签名，目的是保证传输安全， 防止 prepay_id 被劫持篡改
             StringBuilder stringBuilder = new StringBuilder();
             for (Object o : list) {
                 stringBuilder.append(o).append("\n");
@@ -200,12 +209,21 @@ public class WeChatPayUtil {
             JSONObject jo = new JSONObject();
             jo.put("timeStamp", timeStamp);
             jo.put("nonceStr", nonceStr);
+            // package存放预支付标识，固定格式
             jo.put("package", "prepay_id=" + prepayId);
             jo.put("signType", "RSA");
             jo.put("paySign", packageSign);
 
             return jo;
         }
+        // 如果微信统一下单失败，即prepayId == null:
+        /*
+          {
+            "code": "INVALID_REQUEST",
+            "message": "参数错误"
+          }
+         */
+        // 返回微信官方接口的错误响应
         return jsonObject;
     }
 
