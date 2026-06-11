@@ -63,7 +63,7 @@ if [[ ! -f "$RELEASE_DIR/$COMPOSE_FILE_REL" ]]; then
   fi
 fi
 
-mkdir -p "$SHARED_DIR" "$SHARED_DIR/uploads" "$RELEASES_DIR"
+mkdir -p "$SHARED_DIR" "$SHARED_DIR/uploads" "$SHARED_DIR/img_data" "$RELEASES_DIR"
 
 PREV_RELEASE_DIR=""
 if [[ -L "$CURRENT_DIR" ]]; then
@@ -105,12 +105,12 @@ rollback() {
 
 trap rollback EXIT
 
-log INFO "Step 1/5: Switching current symlink"
+log INFO "Step 1/6: Switching current symlink"
 log INFO "Target release: $RELEASE_DIR"
 ln -sfn "$RELEASE_DIR" "$CURRENT_DIR"
 log INFO "Current now points to: $(readlink "$CURRENT_DIR")"
 
-log INFO "Step 2/5: Linking env file into current"
+log INFO "Step 2/6: Linking env file into current"
 if [[ -f "$ENV_FILE" ]]; then
   ln -sfn "$ENV_FILE" "$CURRENT_DIR/.env"
   log INFO "Env linked: $CURRENT_DIR/.env -> $ENV_FILE"
@@ -118,7 +118,7 @@ else
   die "Env file not found: $ENV_FILE"
 fi
 
-log INFO "Step 3/5: Deploying with docker compose"
+log INFO "Step 3/6: Deploying with docker compose"
 cd "$CURRENT_DIR"
 
 log INFO "Cleaning existing stack (containers only, keep volumes)"
@@ -129,7 +129,22 @@ remove_container_if_exists "sky-takeout-app"
 
 compose_up "$COMPOSE_FILE_REL"
 
-log INFO "Step 4/5: Health check"
+log INFO "Step 4/6: Syncing seed images to upload directory"
+SEED_IMG_DIR="$SHARED_DIR/img_data"
+if [[ -n "${UPLOAD_PATH_HOST:-}" && -d "$SEED_IMG_DIR" ]]; then
+  TARGET_IMG_DIR="$UPLOAD_PATH_HOST"
+  mkdir -p "$TARGET_IMG_DIR"
+  # 使用 cp -n 避免覆盖服务器上新上传的用户图片
+  copied=$(cp -nv "$SEED_IMG_DIR"/* "$TARGET_IMG_DIR"/ 2>/dev/null | wc -l | tr -d ' ')
+  total=$(ls -1 "$SEED_IMG_DIR"/ 2>/dev/null | wc -l | tr -d ' ')
+  log INFO "Seed images: ${copied:-0} new copied, ${total} total in seed, target=$TARGET_IMG_DIR"
+elif [[ -z "${UPLOAD_PATH_HOST:-}" ]]; then
+  log WARN "UPLOAD_PATH_HOST not set, skipping seed image sync"
+else
+  log WARN "Seed image directory not found: $SEED_IMG_DIR"
+fi
+
+log INFO "Step 5/6: Health check"
 log INFO "Waiting ${HEALTHCHECK_WAIT_SECONDS}s before checking: $HEALTHCHECK_URL"
 sleep "$HEALTHCHECK_WAIT_SECONDS"
 if curl -fsS --max-time 5 "$HEALTHCHECK_URL" >/dev/null; then
@@ -138,7 +153,7 @@ else
   die "Health check failed: $HEALTHCHECK_URL"
 fi
 
-log INFO "Step 5/5: Cleaning old releases (keep=$KEEP_RELEASES)"
+log INFO "Step 6/6: Cleaning old releases (keep=$KEEP_RELEASES)"
 cd "$RELEASES_DIR"
 
 mapfile -t releases < <(ls -1dt -- */ 2>/dev/null | sed 's:/$::')

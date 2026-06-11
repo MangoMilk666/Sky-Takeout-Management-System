@@ -89,6 +89,20 @@ jobs:
           rsync -az -e "$RSYNC_SSH" scripts/deploy_smart_dining.sh "$SSH_USER@$SSH_HOST:$DEPLOY_BASE_DIR/scripts/deploy_smart_dining.sh"
           rsync -az -e "$RSYNC_SSH" scripts/smart-dining.conf "$SSH_USER@$SSH_HOST:$DEPLOY_BASE_DIR/scripts/smart-dining.conf"
 
+      - name: Sync seed images to shared directory
+        run: |
+          set -euo pipefail
+          SSH_PORT="${SSH_PORT:-22}"
+          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=yes"
+
+          # 同步菜品种子图片到服务器 shared 目录（--ignore-existing 保留服务器上新上传的用户图片）
+          if [ -d data/img_data ]; then
+            rsync -az --ignore-existing -e "$RSYNC_SSH" data/img_data/ "$SSH_USER@$SSH_HOST:$DEPLOY_BASE_DIR/shared/img_data/"
+            echo "Seed images synced to $DEPLOY_BASE_DIR/shared/img_data/"
+          else
+            echo "No data/img_data directory found, skipping image sync"
+          fi
+
       - name: Deploy on host
         uses: appleboy/ssh-action@v1.0.3
         env:
