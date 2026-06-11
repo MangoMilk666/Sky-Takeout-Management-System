@@ -43,3 +43,6 @@ update-record.md
 # vibe coding
 .trae/
 */.trae/
+
+# k6 压测结果
+test/k6/results/

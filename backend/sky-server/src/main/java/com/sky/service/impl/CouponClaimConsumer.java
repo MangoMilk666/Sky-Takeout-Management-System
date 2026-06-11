@@ -60,6 +60,8 @@ public class CouponClaimConsumer {
         public Long userId;
         public String requestId;
         public Long ts;
+        /** 已重试次数（首次入 fail 队列时为 1，每次重试失败后 +1） */
+        public Integer retryCount;
     }
 }
 

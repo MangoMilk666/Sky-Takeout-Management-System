@@ -17,6 +17,7 @@ import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.*;
 import com.sky.websocket.WebSocketServer;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.bridge.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
+@Slf4j
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderMapper orderMapper;
@@ -196,17 +198,27 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * 支付成功，修改订单状态
-     *
+     * 验证支付成功后，修改订单状态
+     * 要求实现幂等性
      * @param outTradeNo
      */
     @Transactional
     public void paySuccess(String outTradeNo) {
 
-        // 根据订单号查询订单
+        // 1. 查询订单，防止订单号不存在时 NPE
         Orders ordersDB = orderMapper.getByNumber(outTradeNo);
+        if (ordersDB == null) {
+            log.warn("paySuccess: 订单不存在，orderNumber={}", outTradeNo);
+            return;
+        }
 
-        // 根据订单id更新订单的状态、支付方式、支付状态、结账时间
+        // 2. 幂等检查：已支付则直接返回，防止微信发送重复回调，重复更新订单
+        if (Orders.PAID.equals(ordersDB.getPayStatus())) {
+            log.info("paySuccess: 订单已处理过，跳过重复处理，orderNumber={}", outTradeNo);
+            return;
+        }
+
+        // 3. 更新订单状态、支付状态、结账时间
         Orders orders = Orders.builder()
                 .id(ordersDB.getId())
                 .status(Orders.TO_BE_CONFIRMED)
@@ -216,19 +228,16 @@ public class OrderServiceImpl implements OrderService {
 
         orderMapper.update(orders);
 
-        // 通过websocket向客户端浏览器推送消息type orderId, content
-        Map map = new HashMap();
-        // 来单提醒
+        // 4. 通过 WebSocket 向管理端推送来单提醒
+        Map<String, Object> map = new HashMap<>();
+        // 1=来单提醒，2=催单
         map.put("type", 1);
-        // 订单id
         map.put("orderId", ordersDB.getId());
-        // 提示内容
-        map.put("content", "订单号"+outTradeNo);
+        map.put("content", "订单号：" + outTradeNo);
 
-        // 转json字符串
         String json = JSON.toJSONString(map);
         webSocketServer.sendToAllClient(json);
-
+        log.info("paySuccess: 来单提醒已推送，orderId={}", ordersDB.getId());
     }
 
     /**

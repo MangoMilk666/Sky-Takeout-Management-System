@@ -36,6 +36,7 @@ public class CouponServiceImpl implements CouponService {
      * 无锁化设计
      * 由Redis单线程执行
      */
+    // 用户抢券的LUA脚本
     private static final String CLAIM_LUA = "local stock_key = KEYS[1] "
             + "local user_set_key = KEYS[2] "
             + "local user_id = ARGV[1] "
@@ -128,12 +129,12 @@ public class CouponServiceImpl implements CouponService {
         if (result == 0L) {
             throw new OrderBusinessException(MessageConstant.COUPON_OUT_OF_STOCK);
         }
-        // requestId（请求唯一标识符）
-        // 实际开发，最好由前端生成一个 UUID（或者根据 userId + couponId 拼接一个唯一的字符串）
-        // 防止用户重复点击破坏幂等性
+        // requestId 是幂等键，由前端在每次点击时生成并在重试时复用。
+        // 兜底策略：用 userId + "_" + couponId 拼接——对同一用户同一张券语义上唯一，
+        // 保证即使前端未传或网络重试也能被 Consumer 正确识别为同一次操作，而不是随机 UUID（每次重试不同，幂等失效）。
         String requestId = couponClaimDTO.getRequestId();
         if (requestId == null || requestId.isEmpty()) {
-            requestId = UUID.randomUUID().toString();
+            requestId = userId + "_" + couponId;
         }
 
         // 异步领券消息队列 (Claim Queue)，存储序列化后的 JSON 字符串

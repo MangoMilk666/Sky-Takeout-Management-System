@@ -12,7 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * WebSocket服务
+ * WebSocket服务类
+ * 注解声明为 WebSocket 端点，路径中的 `{sid}` 是客户端连接时传入的唯一标识
  */
 @Component
 @ServerEndpoint("/ws/{sid}")
@@ -52,7 +53,7 @@ public class WebSocketServer {
     }
 
     /**
-     * 群发
+     * 群发（广播）消息
      *
      * @param message
      */
