@@ -1,5 +1,13 @@
 server:
   port: 8080
+  # ========== Tomcat 线程池调优 ==========
+  # 提升并发处理能力，减少请求排队等待
+  tomcat:
+    threads:
+      max: 300          # 最大工作线程数（默认 200），应对高峰期并发请求
+      min-spare: 30     # 最小空闲线程数（默认 10），减少冷启动时创建线程的延迟
+    accept-count: 200   # 所有线程繁忙时，允许排队的最大连接数（默认 100）
+    max-connections: 10000  # 最大同时连接数（默认 8192）
 
 spring:
   profiles:
@@ -7,17 +15,50 @@ spring:
     active: dev
   main:
     allow-circular-references: true
+
+  # ========== 定时任务线程池 ==========
+  # 默认只有 1 个线程，多个 @Scheduled 任务会相互阻塞
+  # 设为 4 确保优惠券消费、失败重试、WebSocket 心跳等任务互不干扰
+  task:
+    scheduling:
+      pool:
+        size: 4
+
   datasource:
     druid:
       driver-class-name: ${sky.datasource.driver-class-name}
       url: jdbc:mysql://${sky.datasource.host}:${sky.datasource.port}/${sky.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: ${sky.datasource.username}
       password: ${sky.datasource.password}
+
+      # ========== Druid 连接池调优 ==========
+      # 默认 max-active=8 在高并发下严重不足，请求排队等连接导致响应变慢
+      initial-size: 10        # 启动时预创建连接数，避免冷启动延迟
+      min-idle: 10            # 池中最小空闲连接数，保持一定预热能力
+      max-active: 50          # 最大连接数（默认 8），根据实际并发调整
+      max-wait: 5000          # 获取连接最大等待时间 5s（默认 -1 无限等待），防止线程饥饿
+      validation-query: SELECT 1  # 连接有效性检查 SQL
+      test-while-idle: true   # 空闲时检测连接有效性，及时剔除断开的连接
+      test-on-borrow: false   # 借出时不检测，减少开销
+      time-between-eviction-runs-millis: 60000  # 每 60s 检测一次空闲连接
+      pool-prepared-statements: true             # 开启 PreparedStatement 缓存，提升重复 SQL 执行效率
+
   redis:
     host: ${sky.redis.host}
     port: ${sky.redis.port}
     password: ${sky.redis.password}
     database: ${sky.redis.database}
+
+    # ========== Lettuce 连接池调优 ==========
+    # 默认只用单个共享连接处理所有 Redis 操作，缓存/队列/WebSocket 共用会成瓶颈
+    lettuce:
+      pool:
+        max-active: 16   # 最大活跃连接数（默认 8），支撑缓存读写 + 队列轮询并发
+        max-idle: 8      # 最大空闲连接数，空闲时释放多余连接
+        min-idle: 4      # 最小空闲连接数，保持一定预热能力
+        max-wait: 3000ms # 获取连接最大等待时间（默认 -1 无限等待）
+      shutdown-timeout: 200ms  # 优雅关闭等待时间
+    timeout: 5000ms      # Redis 操作超时时间（默认 60s 太长），快速失败避免阻塞
 
 mybatis:
   #mapper配置文件
