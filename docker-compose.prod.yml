@@ -13,17 +13,15 @@ services:
       - -c
       - |
         if [ -n "${REDIS_PASSWORD}" ]; then
-          exec redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}" --maxmemory 256mb --maxmemory-policy allkeys-lru;
+          exec redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}" --maxmemory 128mb --maxmemory-policy allkeys-lru;
         else
-          exec redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru;
+          exec redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru;
         fi
     volumes:
       - sky_redis_data:/data
-    # Redis 容器资源限制：防止内存无限制增长
-    deploy:
-      resources:
-        limits:
-          memory: 512M
+    # Redis 容器资源限制：2 核 2G 机器上只保留小体量缓存空间，避免与 MySQL、JVM 争内存
+    mem_limit: 256m
+    cpus: 0.50
 
   sky-takeout-app:
     build:
@@ -71,13 +69,10 @@ services:
       # 透传 SKY_CORS_ALLOWED_ORIGINS 环境变量到容器，设定允许访问的前端的源
       - SKY_CORS_ALLOWED_ORIGINS=${SKY_CORS_ALLOWED_ORIGINS:-http://localhost:5173}
 
-    # 应用容器资源限制：配合 Dockerfile 中的 JVM -XX:MaxRAMPercentage=75.0
-    # JVM 会使用 mem_limit 的 75% 作为最大堆内存（1.5G * 75% ≈ 1.1G）
-    deploy:
-      resources:
-        limits:
-          memory: 1.5G
-          cpus: '2.0'
+    # 应用容器资源限制：针对 2 核 2G、MySQL 仍同机部署的场景，主动给 Java 留出边界。
+    # 这里优先使用普通 docker compose 能直接识别的 mem_limit / cpus。
+    mem_limit: 768m
+    cpus: 1.50
 
 volumes:
   sky_redis_data:

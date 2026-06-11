@@ -1,13 +1,14 @@
 server:
   port: 8080
   # ========== Tomcat 线程池调优 ==========
-  # 提升并发处理能力，减少请求排队等待
+  # 当前部署机为 2 核 2G，且 MySQL 与应用同机部署。
+  # 这里不再追求“线程越多越好”，而是优先控制线程数与上下文切换开销，避免把内存打爆。
   tomcat:
     threads:
-      max: 300          # 最大工作线程数（默认 200），应对高峰期并发请求
-      min-spare: 30     # 最小空闲线程数（默认 10），减少冷启动时创建线程的延迟
-    accept-count: 200   # 所有线程繁忙时，允许排队的最大连接数（默认 100）
-    max-connections: 10000  # 最大同时连接数（默认 8192）
+      max: 120          # 最大工作线程数：2 核机器上保守收敛，降低线程栈与调度开销
+      min-spare: 10     # 最小空闲线程数：保留基础预热能力，避免突发流量完全冷启动
+    accept-count: 100   # 线程池满后的等待队列，适度保留缓冲，避免排队过深
+    max-connections: 4096  # 2G 机器无需放太大，避免无意义连接堆积
 
 spring:
   profiles:
@@ -17,12 +18,11 @@ spring:
     allow-circular-references: true
 
   # ========== 定时任务线程池 ==========
-  # 默认只有 1 个线程，多个 @Scheduled 任务会相互阻塞
-  # 设为 4 确保优惠券消费、失败重试、WebSocket 心跳等任务互不干扰
+  # 2 核机器上不宜开太多调度线程，2 个线程足以避免串行阻塞，同时减少额外内存与 CPU 竞争
   task:
     scheduling:
       pool:
-        size: 4
+        size: 2
 
   datasource:
     druid:
@@ -32,11 +32,12 @@ spring:
       password: ${sky.datasource.password}
 
       # ========== Druid 连接池调优 ==========
-      # 默认 max-active=8 在高并发下严重不足，请求排队等连接导致响应变慢
-      initial-size: 10        # 启动时预创建连接数，避免冷启动延迟
-      min-idle: 10            # 池中最小空闲连接数，保持一定预热能力
-      max-active: 50          # 最大连接数（默认 8），根据实际并发调整
-      max-wait: 5000          # 获取连接最大等待时间 5s（默认 -1 无限等待），防止线程饥饿
+      # 压测 OOM 说明当前瓶颈不是“连接太少”，而是“单机总资源不足”。
+      # 2 核 2G 且 MySQL 同机时，把连接池控制在 20 左右更稳妥，避免 Java 和 MySQL 同时膨胀。
+      initial-size: 5         # 启动时预创建少量连接，兼顾预热与内存占用
+      min-idle: 5             # 保持基础空闲连接，避免低峰期回收到 0
+      max-active: 20          # 限制最大并发 SQL 连接数，降低 MySQL 线程与内存压力
+      max-wait: 3000          # 最多等 3s 拿连接，过载时快速失败而不是把 Tomcat 线程全部拖死
       validation-query: SELECT 1  # 连接有效性检查 SQL
       test-while-idle: true   # 空闲时检测连接有效性，及时剔除断开的连接
       test-on-borrow: false   # 借出时不检测，减少开销
@@ -50,15 +51,16 @@ spring:
     database: ${sky.redis.database}
 
     # ========== Lettuce 连接池调优 ==========
-    # 默认只用单个共享连接处理所有 Redis 操作，缓存/队列/WebSocket 共用会成瓶颈
+    # Redis 在本项目主要承担缓存与队列；在 2 核 2G 机器上，连接池也需要走保守配置，
+    # 目标是避免单连接争用，同时不额外制造过多空闲连接占用。
     lettuce:
       pool:
-        max-active: 16   # 最大活跃连接数（默认 8），支撑缓存读写 + 队列轮询并发
-        max-idle: 8      # 最大空闲连接数，空闲时释放多余连接
-        min-idle: 4      # 最小空闲连接数，保持一定预热能力
-        max-wait: 3000ms # 获取连接最大等待时间（默认 -1 无限等待）
+        max-active: 8    # 控制 Redis 并发连接上限，避免过多连接堆积
+        max-idle: 4      # 最大空闲连接数
+        min-idle: 2      # 最小空闲连接数：兼顾预热与资源占用
+        max-wait: 2000ms # Redis 拿连接最多等 2s，避免长时间阻塞业务线程
       shutdown-timeout: 200ms  # 优雅关闭等待时间
-    timeout: 5000ms      # Redis 操作超时时间（默认 60s 太长），快速失败避免阻塞
+    timeout: 3000ms      # Redis 操作超时时间：快速失败，避免把应用线程长时间挂住
 
 mybatis:
   #mapper配置文件
