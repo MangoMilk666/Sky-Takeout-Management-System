@@ -1,0 +1,59 @@
+<view class="page">
+
+  <!-- 测试专用标识 -->
+  <view class="test-badge">
+    <text class="test-badge-text">🔧 测试人员专用通道</text>
+  </view>
+
+  <!-- 订单信息卡片 -->
+  <view class="order-card">
+    <view class="order-row">
+      <text class="order-label">订单号</text>
+      <text class="order-value">{{orderNumber}}</text>
+    </view>
+    <view class="divider"></view>
+    <view class="order-row amount-row">
+      <text class="order-label">支付金额</text>
+      <text class="order-amount">¥ {{orderAmount}}</text>
+    </view>
+  </view>
+
+  <!-- 支付方式选择 -->
+  <view class="section">
+    <text class="section-title">请选择支付方式</text>
+
+    <!-- 正式微信支付 -->
+    <button
+      class="pay-btn pay-btn-real"
+      bindtap="handleRealPay"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+    >
+      <view class="pay-btn-inner">
+        <text class="pay-btn-icon">💳</text>
+        <view class="pay-btn-text">
+          <text class="pay-btn-title">微信正式支付</text>
+          <text class="pay-btn-desc">调用真实微信支付接口，产生实际扣款</text>
+        </view>
+      </view>
+    </button>
+
+    <!-- 测试模式跳过 -->
+    <button
+      class="pay-btn pay-btn-test"
+      bindtap="handleTestPay"
+      disabled="{{loading}}"
+    >
+      <view class="pay-btn-inner">
+        <text class="pay-btn-icon">⚡</text>
+        <view class="pay-btn-text">
+          <text class="pay-btn-title">测试模式（跳过支付）</text>
+          <text class="pay-btn-desc">直接标记已支付，不产生任何扣款</text>
+        </view>
+      </view>
+    </button>
+  </view>
+
+  <text class="tip">注意：测试模式仅供开发调试使用，请勿在生产环境依赖此功能</text>
+
+</view>

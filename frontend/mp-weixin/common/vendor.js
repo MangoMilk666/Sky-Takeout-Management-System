@@ -20171,12 +20171,14 @@ exports.submitOrderSubmit = submitOrderSubmit;var userCouponList = function user
 
 };
 
-// 领券
+// 领券（params 中应包含 couponId 和 requestId）
+// 使用 data 而非 params：后端 @RequestBody 从请求体读取，POST query string 会被忽略
+// requestId 由调用方在每次点击时生成（Date.now()+"_"+随机串），重试时复用同一个
 exports.userCouponList = userCouponList;var userCouponClaim = function userCouponClaim(params) {
   return (0, _request.request)({
     url: '/user/coupon/claim',
     method: 'POST',
-    params: params });
+    data: params });
 
 };
 

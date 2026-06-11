@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "选择支付方式",
+  "navigationBarBackgroundColor": "#333333",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": false,
+  "usingComponents": {}
+}

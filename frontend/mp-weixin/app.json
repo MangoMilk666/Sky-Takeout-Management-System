@@ -12,7 +12,8 @@
     "pages/addOrEditAddress/addOrEditAddress",
     "pages/historyOrder/historyOrder",
     "pages/couponCenter/index",
-    "pages/couponSelect/index"
+    "pages/couponSelect/index",
+    "pages/payMode/index"
   ],
   "subPackages": [],
   "window": {
